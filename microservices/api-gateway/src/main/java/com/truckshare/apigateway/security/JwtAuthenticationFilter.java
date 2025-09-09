@@ -51,8 +51,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             java.util.List<String> roles = jwtUtil.extractRoles(token);
             String rolesHeader = String.join(",", roles);
             ServerHttpRequest mutated = exchange.getRequest().mutate()
-                    .header("AuthenticatedUser", username)
-                    .header("UserRoles", rolesHeader)
+                    .header("UserId", username)
+                    .header("UserRole", rolesHeader)
                     .build();
             return chain.filter(exchange.mutate().request(mutated).build());
         } catch (Exception e) {

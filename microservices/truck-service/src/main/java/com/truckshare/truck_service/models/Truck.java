@@ -4,6 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,7 +27,7 @@ public class Truck {
     private UUID id;
 
     @Column(nullable = false)
-    private UUID ownerId;
+    private String ownerId;
 
     @Column(nullable = false, unique = true)
     private String licensePlate;
@@ -44,8 +49,8 @@ public class Truck {
     @Enumerated(EnumType.STRING)
     private TruckStatus status = TruckStatus.AVAILABLE;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
-    private LocalDateTime updatedAt = LocalDateTime.now();
-
-    // Getters, setters
+    @CreationTimestamp
+    private Instant createdAt ;
+    @UpdateTimestamp
+    private Instant updatedAt ;
 }
