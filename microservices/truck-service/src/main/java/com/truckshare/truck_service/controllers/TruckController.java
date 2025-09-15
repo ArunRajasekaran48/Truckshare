@@ -2,7 +2,6 @@ package com.truckshare.truck_service.controllers;
 
 import com.truckshare.truck_service.dto.TruckRequestDTO;
 import com.truckshare.truck_service.dto.TruckResponseDTO;
-import com.truckshare.truck_service.models.Truck;
 import com.truckshare.truck_service.services.TruckService;
 
 import lombok.AllArgsConstructor;
@@ -11,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/trucks")
@@ -24,6 +24,7 @@ public class TruckController {
         @RequestHeader("UserId") String ownerId,
         @RequestHeader("UserRole") String role,
         @RequestBody TruckRequestDTO truckRequestDTO) {
+        System.out.println(ownerId+" "+role);
         if (!"TRUCK_OWNER".equals(role)) {
             return ResponseEntity.status(403).build(); 
         }
@@ -38,5 +39,32 @@ public class TruckController {
         @RequestParam String to) {
         List<TruckResponseDTO> trucks = truckService.searchTrucks(from, to);
         return ResponseEntity.ok(trucks);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TruckResponseDTO> getTruckById(@PathVariable UUID id) {
+        TruckResponseDTO truck = truckService.getTruckById(id);
+        return ResponseEntity.ok(truck);
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<TruckResponseDTO> updateTruck(
+        @RequestHeader("UserId") String ownerId,
+        @RequestHeader("UserRole") String role,
+        @PathVariable UUID id,
+        @RequestBody TruckRequestDTO truckRequestDTO) {
+        if (!"TRUCK_OWNER".equals(role)) {
+            return ResponseEntity.status(403).build(); 
+        }
+        TruckResponseDTO existingTruck = truckService.getTruckById(id);
+        if (existingTruck == null) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!existingTruck.getOwnerId().equals(ownerId)) {
+            return ResponseEntity.status(403).build(); 
+        }
+        truckRequestDTO.setOwnerId(ownerId);
+        TruckResponseDTO updatedTruck = truckService.updateTruck(id, truckRequestDTO);
+        return ResponseEntity.ok(updatedTruck);
     }
 }

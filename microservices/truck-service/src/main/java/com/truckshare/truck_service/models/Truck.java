@@ -37,10 +37,10 @@ public class Truck {
     private Double capacityWeight;
     private Double capacityVolume;
 
-//    @Column(nullable = false)
+    @Column(nullable = false)
     private String fromLocation;
 
-//    @Column(nullable = false)
+    @Column(nullable = false)
     private String toLocation;
 
     private Double currentWeight = 0d;
