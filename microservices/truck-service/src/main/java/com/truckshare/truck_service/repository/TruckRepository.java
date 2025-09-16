@@ -12,4 +12,6 @@ import java.util.UUID;
 public interface TruckRepository extends JpaRepository<Truck, UUID> {
     List<Truck> findByFromLocationAndToLocation(String from, String to);
     Optional<Truck> findById(UUID id);
+    
+    List<Truck> findByOwnerId(String ownerId);
 }

@@ -47,6 +47,16 @@ public class TruckController {
         return ResponseEntity.ok(truck);
     }
 
+    @GetMapping("/getTrucksByOwner")
+    public ResponseEntity<List<TruckResponseDTO>> getTrucksByOwner(
+        @RequestHeader("UserId") String ownerId,
+        @RequestHeader("UserRole") String role){
+        if (!"TRUCK_OWNER".equals(role)) {
+            return ResponseEntity.status(403).build(); 
+        }
+        List<TruckResponseDTO> trucks = truckService.searchTrucksByOwner(ownerId);
+        return ResponseEntity.ok(trucks);
+    }
     @PutMapping("/update/{id}")
     public ResponseEntity<TruckResponseDTO> updateTruck(
         @RequestHeader("UserId") String ownerId,
@@ -66,5 +76,24 @@ public class TruckController {
         truckRequestDTO.setOwnerId(ownerId);
         TruckResponseDTO updatedTruck = truckService.updateTruck(id, truckRequestDTO);
         return ResponseEntity.ok(updatedTruck);
+    }
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteTruck(
+        @RequestHeader("UserId") String ownerId,
+        @RequestHeader("UserRole") String role,
+        @PathVariable UUID id) {
+        if (!"TRUCK_OWNER".equals(role)) {
+            return ResponseEntity.status(403).build(); 
+        }
+        TruckResponseDTO existingTruck = truckService.getTruckById(id);
+        if (existingTruck == null) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!existingTruck.getOwnerId().equals(ownerId)) {
+            return ResponseEntity.status(403).build(); 
+        }
+        truckService.deleteTruck(id);
+        return ResponseEntity
+        .noContent().build();
     }
 }

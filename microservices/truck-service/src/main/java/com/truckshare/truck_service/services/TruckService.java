@@ -38,6 +38,13 @@ public class TruckService {
                 .orElse(null);
     }
 
+    public List<TruckResponseDTO> searchTrucksByOwner(String ownerId) {
+        List<Truck> trucks = truckRepository.findByOwnerId(ownerId);
+        return trucks.stream()
+                .map(TruckMapper::toDto)
+                .toList();
+    }
+
     public TruckResponseDTO updateTruck(UUID id, TruckRequestDTO truckRequestDTO) {
         return truckRepository.findById(id)
                 .map(existingTruck -> {
@@ -53,5 +60,9 @@ public class TruckService {
                     return TruckMapper.toDto(truckRepository.save(existingTruck));
                 })
                 .orElse(null);
+    }
+
+    public void deleteTruck(UUID id) {
+        truckRepository.deleteById(id);
     }
 }
