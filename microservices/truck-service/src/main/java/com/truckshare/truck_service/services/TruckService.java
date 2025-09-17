@@ -65,4 +65,11 @@ public class TruckService {
     public void deleteTruck(UUID id) {
         truckRepository.deleteById(id);
     }
+
+    public List<TruckResponseDTO> getAvailableTrucks() {
+    return truckRepository.findByStatus(TruckStatus.AVAILABLE)
+            .stream()
+            .map(TruckMapper::toDto)
+            .toList();
+}
 }

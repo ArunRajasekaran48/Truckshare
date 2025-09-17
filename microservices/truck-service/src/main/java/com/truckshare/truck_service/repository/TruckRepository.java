@@ -1,6 +1,8 @@
 package com.truckshare.truck_service.repository;
 
 import com.truckshare.truck_service.models.Truck;
+import com.truckshare.truck_service.models.TruckStatus;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +16,6 @@ public interface TruckRepository extends JpaRepository<Truck, UUID> {
     Optional<Truck> findById(UUID id);
     
     List<Truck> findByOwnerId(String ownerId);
+
+    List<Truck> findByStatus(TruckStatus status);
 }

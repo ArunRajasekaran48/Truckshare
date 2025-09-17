@@ -96,4 +96,10 @@ public class TruckController {
         return ResponseEntity
         .noContent().build();
     }
+
+    @GetMapping("/available-trucks")
+    public ResponseEntity<List<TruckResponseDTO>> getAvailableTrucks() {
+        List<TruckResponseDTO> trucks = truckService.getAvailableTrucks();
+        return ResponseEntity.ok(trucks);
+    }
 }
