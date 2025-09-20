@@ -10,8 +10,8 @@ public class TruckRequestDTO {
 	private Double capacityVolume;
 	private String fromLocation;
 	private String toLocation;
-	private Double currentWeight;
-	private Double currentVolume;
+	private Double availableWeight;
+	private Double availableVolume;
 	private String status;
 	// This will be injected from JWT in the controller
 	private String ownerId;

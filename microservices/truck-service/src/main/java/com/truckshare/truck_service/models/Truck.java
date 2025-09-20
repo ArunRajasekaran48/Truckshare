@@ -6,10 +6,8 @@ import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedDate;
-
 import java.time.Instant;
-import java.time.LocalDateTime;
+
 
 @Entity
 @Table(name = "trucks")
@@ -43,8 +41,8 @@ public class Truck {
     @Column(nullable = false)
     private String toLocation;
 
-    private Double currentWeight = 0d;
-    private Double currentVolume = 0d;
+    private Double availableWeight;
+    private Double availableVolume;
 
     @Enumerated(EnumType.STRING)
     private TruckStatus status = TruckStatus.AVAILABLE;

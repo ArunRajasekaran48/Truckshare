@@ -25,8 +25,8 @@ public class TruckService {
         return TruckMapper.toDto(truckRepository.save(truck));
     }
 
-    public List<TruckResponseDTO> searchTrucks(String from, String to) {
-        List<Truck> trucks = truckRepository.findByFromLocationAndToLocation(from, to);
+    public List<TruckResponseDTO> searchTrucks(String from, String to, Double requiredWeight, Double requiredVolume) {
+        List<Truck> trucks = truckRepository.findByFromLocationAndToLocationWithCapacity(from, to, requiredWeight, requiredVolume);
         return trucks.stream()
                 .map(TruckMapper::toDto)
                 .toList();
@@ -54,8 +54,8 @@ public class TruckService {
                     existingTruck.setCapacityVolume(truckRequestDTO.getCapacityVolume());
                     existingTruck.setFromLocation(truckRequestDTO.getFromLocation());
                     existingTruck.setToLocation(truckRequestDTO.getToLocation());
-                    existingTruck.setCurrentWeight(truckRequestDTO.getCurrentWeight());
-                    existingTruck.setCurrentVolume(truckRequestDTO.getCurrentVolume());
+                    existingTruck.setAvailableWeight(truckRequestDTO.getAvailableWeight());
+                    existingTruck.setAvailableVolume(truckRequestDTO.getAvailableVolume());
                     existingTruck.setStatus(TruckStatus.valueOf(truckRequestDTO.getStatus()));
                     return TruckMapper.toDto(truckRepository.save(existingTruck));
                 })
@@ -67,9 +67,34 @@ public class TruckService {
     }
 
     public List<TruckResponseDTO> getAvailableTrucks() {
-    return truckRepository.findByStatus(TruckStatus.AVAILABLE)
-            .stream()
-            .map(TruckMapper::toDto)
-            .toList();
-}
+        return truckRepository.findByStatus(TruckStatus.AVAILABLE)
+                .stream()
+                .map(TruckMapper::toDto)
+                .toList();
+    }
+
+    public TruckResponseDTO updateCapacity(UUID id, double bookedWeight, double bookedVolume) {
+        return truckRepository.findById(id)
+                .map(existingTruck -> {
+                    if (bookedWeight > existingTruck.getAvailableWeight()) {
+                        return null;
+                    }
+                    if (bookedVolume > existingTruck.getAvailableVolume()) {
+                        return null;
+                    }
+                    //Reduce the booked weight and volume from available weight and volume
+                    existingTruck.setAvailableWeight(existingTruck.getAvailableWeight() - bookedWeight);
+                    existingTruck.setAvailableVolume(existingTruck.getAvailableVolume() - bookedVolume);
+                    return TruckMapper.toDto(truckRepository.save(existingTruck));
+                })
+                .orElse(null);
+    }
+    public TruckResponseDTO updateStatus(UUID id, String status) {
+        return truckRepository.findById(id)
+                .map(existingTruck -> {
+                    existingTruck.setStatus(TruckStatus.valueOf(status));
+                    return TruckMapper.toDto(truckRepository.save(existingTruck));
+                })
+                .orElse(null);
+    }
 }
