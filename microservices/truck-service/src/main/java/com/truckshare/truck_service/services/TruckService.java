@@ -2,6 +2,8 @@ package com.truckshare.truck_service.services;
 
 import com.truckshare.truck_service.dto.TruckRequestDTO;
 import com.truckshare.truck_service.dto.TruckResponseDTO;
+import com.truckshare.truck_service.exception.TruckNotFoundException;
+import com.truckshare.truck_service.exception.InsufficientCapacityException;
 import com.truckshare.truck_service.mapper.TruckMapper;
 import com.truckshare.truck_service.models.Truck;
 import com.truckshare.truck_service.models.TruckStatus;
@@ -35,7 +37,7 @@ public class TruckService {
     public TruckResponseDTO getTruckById(UUID id) {
         return truckRepository.findById(id)
                 .map(TruckMapper::toDto)
-                .orElse(null);
+            .orElseThrow(() -> new TruckNotFoundException("Truck not found with id: " + id));
     }
 
     public List<TruckResponseDTO> searchTrucksByOwner(String ownerId) {
@@ -46,23 +48,24 @@ public class TruckService {
     }
 
     public TruckResponseDTO updateTruck(UUID id, TruckRequestDTO truckRequestDTO) {
-        return truckRepository.findById(id)
-                .map(existingTruck -> {
-                    existingTruck.setLicensePlate(truckRequestDTO.getLicensePlate());
-                    existingTruck.setModel(truckRequestDTO.getModel());
-                    existingTruck.setCapacityWeight(truckRequestDTO.getCapacityWeight());
-                    existingTruck.setCapacityVolume(truckRequestDTO.getCapacityVolume());
-                    existingTruck.setFromLocation(truckRequestDTO.getFromLocation());
-                    existingTruck.setToLocation(truckRequestDTO.getToLocation());
-                    existingTruck.setAvailableWeight(truckRequestDTO.getAvailableWeight());
-                    existingTruck.setAvailableVolume(truckRequestDTO.getAvailableVolume());
-                    existingTruck.setStatus(TruckStatus.valueOf(truckRequestDTO.getStatus()));
-                    return TruckMapper.toDto(truckRepository.save(existingTruck));
-                })
-                .orElse(null);
+    Truck existingTruck = truckRepository.findById(id)
+        .orElseThrow(() -> new TruckNotFoundException("Truck not found with id: " + id));
+    existingTruck.setLicensePlate(truckRequestDTO.getLicensePlate());
+    existingTruck.setModel(truckRequestDTO.getModel());
+    existingTruck.setCapacityWeight(truckRequestDTO.getCapacityWeight());
+    existingTruck.setCapacityVolume(truckRequestDTO.getCapacityVolume());
+    existingTruck.setFromLocation(truckRequestDTO.getFromLocation());
+    existingTruck.setToLocation(truckRequestDTO.getToLocation());
+    existingTruck.setAvailableWeight(truckRequestDTO.getAvailableWeight());
+    existingTruck.setAvailableVolume(truckRequestDTO.getAvailableVolume());
+    existingTruck.setStatus(TruckStatus.valueOf(truckRequestDTO.getStatus()));
+    return TruckMapper.toDto(truckRepository.save(existingTruck));
     }
 
     public void deleteTruck(UUID id) {
+        if (!truckRepository.existsById(id)) {
+            throw new TruckNotFoundException("Truck not found with id: " + id);
+        }
         truckRepository.deleteById(id);
     }
 
@@ -74,21 +77,19 @@ public class TruckService {
     }
 
     public TruckResponseDTO updateCapacity(UUID id, double bookedWeight, double bookedVolume) {
-        return truckRepository.findById(id)
-                .map(existingTruck -> {
-                    if (bookedWeight > existingTruck.getAvailableWeight()) {
-                        return null;
-                    }
-                    if (bookedVolume > existingTruck.getAvailableVolume()) {
-                        return null;
-                    }
-                    //Reduce the booked weight and volume from available weight and volume
-                    existingTruck.setAvailableWeight(existingTruck.getAvailableWeight() - bookedWeight);
-                    existingTruck.setAvailableVolume(existingTruck.getAvailableVolume() - bookedVolume);
-                    return TruckMapper.toDto(truckRepository.save(existingTruck));
-                })
-                .orElse(null);
+        Truck existingTruck = truckRepository.findById(id)
+                .orElseThrow(() -> new TruckNotFoundException("Truck not found with id: " + id));
+        if (bookedWeight > existingTruck.getAvailableWeight()) {
+            throw new InsufficientCapacityException("Not enough available weight for booking.");
+        }
+        if (bookedVolume > existingTruck.getAvailableVolume()) {
+            throw new InsufficientCapacityException("Not enough available volume for booking.");
+        }
+        existingTruck.setAvailableWeight(existingTruck.getAvailableWeight() - bookedWeight);
+        existingTruck.setAvailableVolume(existingTruck.getAvailableVolume() - bookedVolume);
+        return TruckMapper.toDto(truckRepository.save(existingTruck));
     }
+
     public TruckResponseDTO updateStatus(UUID id, String status) {
         return truckRepository.findById(id)
                 .map(existingTruck -> {
