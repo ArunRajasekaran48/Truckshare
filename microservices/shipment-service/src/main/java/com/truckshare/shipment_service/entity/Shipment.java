@@ -24,7 +24,7 @@ public class Shipment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    private UUID businessUserId;
+    private String businessUserId;
 
     @Column(nullable = false)
     private String fromLocation;

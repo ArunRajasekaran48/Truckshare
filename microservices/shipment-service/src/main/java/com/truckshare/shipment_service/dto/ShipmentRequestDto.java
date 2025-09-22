@@ -12,9 +12,8 @@ import com.truckshare.shipment_service.entity.ShipmentStatus;
 @AllArgsConstructor
 @Builder
 
-public class ShipmentDto {
-    private UUID id;
-    private UUID businessUserId;
+public class ShipmentRequestDto {
+    private String businessUserId;
     private String fromLocation;
     private String toLocation;
     private Double requiredWeight;
