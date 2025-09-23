@@ -23,6 +23,10 @@ public class MatchingService {
                 shipmentResponse.getRequiredWeight(),
                 shipmentResponse.getRequiredVolume()
                 );
+        if(matchedTrucks.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+        shipmentClient.updateShipmentStatus(shipmentId, ShipmentStatus.MATCHED);
         return ResponseEntity.ok(matchedTrucks);
     }
 }

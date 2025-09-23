@@ -19,10 +19,9 @@
         </processorPath>
         <module name="api-gateway" />
         <module name="truck-service" />
-        <module name="matching-service" />
         <module name="booking-service" />
       </profile>
-      <profile name="Annotation profile for shipment-service" enabled="true">
+      <profile name="Annotation profile for matching-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -30,6 +29,7 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
         </processorPath>
         <module name="shipment-service" />
+        <module name="matching-service" />
       </profile>
     </annotationProcessing>
   </component>

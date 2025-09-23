@@ -3,6 +3,7 @@ package com.truckshare.shipment_service.service;
 import com.truckshare.shipment_service.dto.ShipmentRequestDto;
 import com.truckshare.shipment_service.dto.ShipmentResponseDto;
 import com.truckshare.shipment_service.entity.Shipment;
+import com.truckshare.shipment_service.entity.ShipmentStatus;
 import com.truckshare.shipment_service.mapper.ShipmentMapper;
 import com.truckshare.shipment_service.repository.ShipmentRepository;
 
@@ -27,5 +28,10 @@ public class ShipmentService {
        Shipment shipment = shipmentRepository.findById(id).orElse(null);
        return ShipmentMapper.toDto(shipment);
     }
-    
+
+    public void updateShipmentStatus(UUID id, ShipmentStatus status) {
+        Shipment shipment = shipmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Shipment not found"));
+        shipment.setStatus(status);
+        shipmentRepository.save(shipment);
+    }
 }

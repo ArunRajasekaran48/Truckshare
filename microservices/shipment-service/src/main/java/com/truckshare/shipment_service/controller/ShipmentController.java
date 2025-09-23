@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,5 +45,11 @@ public class ShipmentController {
     public ResponseEntity<ShipmentResponseDto> getShipmentById(@PathVariable UUID id) {
         ShipmentResponseDto shipment = shipmentService.getShipmentById(id);
         return ResponseEntity.ok(shipment);
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Void> updateShipmentStatus(@PathVariable UUID id, @RequestBody ShipmentStatus status) {
+        shipmentService.updateShipmentStatus(id, status);
+        return ResponseEntity.ok().build();
     }
 }
