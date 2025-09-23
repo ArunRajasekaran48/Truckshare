@@ -8,12 +8,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.truckshare.matching_service.dto.ShipmentResponseDto;
 import com.truckshare.matching_service.dto.ShipmentStatus;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(name="SHIPMENT-SERVICE")
 public interface ShipmentClient {
     @GetMapping("/shipments/{id}")
     ShipmentResponseDto getShipmentById(@PathVariable("id") UUID id);
 
-    @PatchMapping("/shipments/{id}/status")
+    @PutMapping("/shipments/{id}/status")
     void updateShipmentStatus(@PathVariable("id") UUID shipmentId, @RequestBody ShipmentStatus status);
 }

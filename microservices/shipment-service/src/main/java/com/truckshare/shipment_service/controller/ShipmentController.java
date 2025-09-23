@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,7 +48,24 @@ public class ShipmentController {
         return ResponseEntity.ok(shipment);
     }
 
-    @PatchMapping("/{id}/status")
+    @PutMapping("/{id}")
+    public ResponseEntity<ShipmentResponseDto> updateShipment(
+        @RequestHeader("UserId")String businessUserId,
+        @RequestHeader("UserRole") String role,
+        @PathVariable UUID id, @RequestBody ShipmentRequestDto dto) {
+        if(!role.equals("BUSINESS_USER")) {
+            throw new RuntimeException("Only business users can update shipments");
+        }
+        //check if the shipment belongs to the user
+        ShipmentResponseDto existingShipment = shipmentService.getShipmentById(id);
+        if(!existingShipment.getBusinessUserId().equals(businessUserId)) {
+            throw new RuntimeException("Shipment does not belong to the user");
+        }
+        dto.setBusinessUserId(businessUserId);
+        ShipmentResponseDto updatedShipment = shipmentService.updateShipment(id, dto);
+        return ResponseEntity.ok(updatedShipment);
+    }
+    @PutMapping("/{id}/status")
     public ResponseEntity<Void> updateShipmentStatus(@PathVariable UUID id, @RequestBody ShipmentStatus status) {
         shipmentService.updateShipmentStatus(id, status);
         return ResponseEntity.ok().build();

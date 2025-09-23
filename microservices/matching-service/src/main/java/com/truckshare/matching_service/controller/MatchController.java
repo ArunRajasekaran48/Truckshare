@@ -1,6 +1,5 @@
 package com.truckshare.matching_service.controller;
 
-import com.truckshare.matching_service.dto.MatchResponseDTO;
 import com.truckshare.matching_service.dto.TruckResponseDTO;
 import com.truckshare.matching_service.service.MatchingService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MatchController {
 
-    MatchingService matchingService;
+    private final MatchingService matchingService;
     @GetMapping("/{id}")
     public ResponseEntity<List<TruckResponseDTO>> getMatches(@PathVariable UUID id){
         return matchingService.findMatches(id);

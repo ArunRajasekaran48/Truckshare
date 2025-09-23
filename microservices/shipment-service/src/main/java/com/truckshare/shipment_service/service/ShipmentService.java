@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 @Service
 @RequiredArgsConstructor
@@ -33,5 +34,17 @@ public class ShipmentService {
         Shipment shipment = shipmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Shipment not found"));
         shipment.setStatus(status);
         shipmentRepository.save(shipment);
+    }
+
+    public ShipmentResponseDto updateShipment(
+        UUID id, ShipmentRequestDto dto) {
+        Shipment shipment = shipmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Shipment not found"));
+        shipment.setFromLocation(dto.getFromLocation());
+        shipment.setToLocation(dto.getToLocation());
+        shipment.setRequiredWeight(dto.getRequiredWeight());
+        shipment.setRequiredVolume(dto.getRequiredVolume());
+        shipment.setIsSplit(dto.getIsSplit());
+        Shipment updatedShipment = shipmentRepository.save(shipment);
+        return ShipmentMapper.toDto(updatedShipment);
     }
 }
