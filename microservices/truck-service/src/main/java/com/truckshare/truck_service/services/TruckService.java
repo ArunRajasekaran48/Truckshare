@@ -28,7 +28,7 @@ public class TruckService {
     }
 
     public List<TruckResponseDTO> searchTrucks(String from, String to, Double requiredWeight, Double requiredVolume) {
-        List<Truck> trucks = truckRepository.findByFromLocationAndToLocationWithCapacity(from, to, requiredWeight, requiredVolume);
+        List<Truck> trucks = truckRepository.findByFromLocationAndToLocationWithCapacity(from, to, requiredWeight, requiredVolume, TruckStatus.AVAILABLE);
         return trucks.stream()
                 .map(TruckMapper::toDto)
                 .toList();

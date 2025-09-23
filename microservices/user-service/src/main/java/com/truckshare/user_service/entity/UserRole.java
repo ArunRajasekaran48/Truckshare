@@ -1,6 +1,6 @@
 package com.truckshare.user_service.entity;
 
 public enum UserRole {
-    BUSINESS,
+    BUSINESS_USER,
     TRUCK_OWNER
 }
