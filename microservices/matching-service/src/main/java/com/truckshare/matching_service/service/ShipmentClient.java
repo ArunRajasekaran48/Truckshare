@@ -11,7 +11,9 @@ import com.truckshare.matching_service.dto.ShipmentStatus;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name="SHIPMENT-SERVICE")
+import com.truckshare.matching_service.service.fallback.ShipmentClientFallback;
+
+@FeignClient(name="SHIPMENT-SERVICE", fallback = ShipmentClientFallback.class)
 public interface ShipmentClient {
     @GetMapping("/shipments/{id}")
     ShipmentResponseDto getShipmentById(@PathVariable("id") UUID id);
