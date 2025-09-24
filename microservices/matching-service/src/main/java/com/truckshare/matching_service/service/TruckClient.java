@@ -17,8 +17,8 @@ public interface TruckClient {
             @RequestParam Double requiredVolume
     );
 
-    @GetMapping("/trucks/search")
-    List<TruckResponseDTO> searchTrucks(
+    @GetMapping("/trucks/split-search")
+    List<TruckResponseDTO> splitSearchTrucks(
             @RequestParam String from,
             @RequestParam String to
     );

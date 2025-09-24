@@ -18,10 +18,10 @@ public class MatchingService {
 
     public ResponseEntity<List<TruckResponseDTO>> findMatches(UUID shipmentId){
         ShipmentResponseDto shipmentResponse =shipmentClient.getShipmentById(shipmentId);
-        System.out.println("Searching trucks for: from=" + shipmentResponse.getFromLocation() +
-        ", to=" + shipmentResponse.getToLocation() +
-        ", weight=" + shipmentResponse.getRequiredWeight() +
-        ", volume=" + shipmentResponse.getRequiredVolume());
+//        System.out.println("Searching trucks for: from=" + shipmentResponse.getFromLocation() +
+//        ", to=" + shipmentResponse.getToLocation() +
+//        ", weight=" + shipmentResponse.getRequiredWeight() +
+//        ", volume=" + shipmentResponse.getRequiredVolume());
         List<TruckResponseDTO> matchedTrucks;
         if(!shipmentResponse.getIsSplit()){
             matchedTrucks=truckClient.searchTrucks(
@@ -31,7 +31,7 @@ public class MatchingService {
                     shipmentResponse.getRequiredVolume()
             );
         }else{
-            matchedTrucks=truckClient.searchTrucks(
+            matchedTrucks=truckClient.splitSearchTrucks(
                     shipmentResponse.getFromLocation(),
                     shipmentResponse.getToLocation()
             );

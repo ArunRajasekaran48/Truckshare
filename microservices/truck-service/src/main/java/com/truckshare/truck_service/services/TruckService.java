@@ -98,4 +98,11 @@ public class TruckService {
                 })
                 .orElse(null);
     }
+
+    public List<TruckResponseDTO> splitSearchTrucks(String from, String to) {
+        List<Truck> trucks = truckRepository.findByFromLocationAndToLocationAndStatus(from, to, TruckStatus.AVAILABLE);
+        return trucks.stream()
+                .map(TruckMapper::toDto)
+                .toList();
+    }
 }

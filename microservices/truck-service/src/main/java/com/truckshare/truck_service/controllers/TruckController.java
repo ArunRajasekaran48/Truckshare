@@ -3,8 +3,7 @@ package com.truckshare.truck_service.controllers;
 import com.truckshare.truck_service.dto.TruckRequestDTO;
 import com.truckshare.truck_service.dto.TruckResponseDTO;
 import com.truckshare.truck_service.services.TruckService;
-
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,9 +13,8 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/trucks")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TruckController {
-
     private final TruckService truckService;
 
     @PostMapping("/add-truck")
@@ -40,6 +38,14 @@ public class TruckController {
             @RequestParam Double requiredWeight,
             @RequestParam Double requiredVolume) {
         List<TruckResponseDTO> trucks = truckService.searchTrucks(from, to, requiredWeight, requiredVolume);
+        return ResponseEntity.ok(trucks);
+    }
+
+    @GetMapping("/split-search")
+    public ResponseEntity<List<TruckResponseDTO>> splitSearchTrucks(
+            @RequestParam String from,
+            @RequestParam String to) {
+        List<TruckResponseDTO> trucks = truckService.splitSearchTrucks(from, to);
         return ResponseEntity.ok(trucks);
     }
 
@@ -144,7 +150,7 @@ public class TruckController {
         if (!truck.getOwnerId().equals(ownerId)) {
             return ResponseEntity.status(403).build();
         }
-        if(!status.equals("AVAILABLE") || !status.equals("IN_TRANSIT") || !status.equals("FULL") || !status.equals("UNAVAILABLE")){
+        if (!List.of("AVAILABLE", "IN_TRANSIT", "FULL", "UNAVAILABLE").contains(status)) {
             return ResponseEntity.status(400).build();
         }
         TruckResponseDTO updated = truckService.updateStatus(id, status);
