@@ -16,4 +16,10 @@ public interface TruckClient {
             @RequestParam Double requiredWeight,
             @RequestParam Double requiredVolume
     );
+
+    @GetMapping("/trucks/search")
+    List<TruckResponseDTO> searchTrucks(
+            @RequestParam String from,
+            @RequestParam String to
+    );
 }

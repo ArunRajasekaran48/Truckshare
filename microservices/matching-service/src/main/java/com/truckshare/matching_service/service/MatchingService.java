@@ -22,12 +22,20 @@ public class MatchingService {
         ", to=" + shipmentResponse.getToLocation() +
         ", weight=" + shipmentResponse.getRequiredWeight() +
         ", volume=" + shipmentResponse.getRequiredVolume());
-        List<TruckResponseDTO> matchedTrucks=truckClient.searchTrucks(
-                shipmentResponse.getFromLocation(),
-                shipmentResponse.getToLocation(),
-                shipmentResponse.getRequiredWeight(),
-                shipmentResponse.getRequiredVolume()
-                );
+        List<TruckResponseDTO> matchedTrucks;
+        if(!shipmentResponse.getIsSplit()){
+            matchedTrucks=truckClient.searchTrucks(
+                    shipmentResponse.getFromLocation(),
+                    shipmentResponse.getToLocation(),
+                    shipmentResponse.getRequiredWeight(),
+                    shipmentResponse.getRequiredVolume()
+            );
+        }else{
+            matchedTrucks=truckClient.searchTrucks(
+                    shipmentResponse.getFromLocation(),
+                    shipmentResponse.getToLocation()
+            );
+        }
         if(matchedTrucks.isEmpty()){
             System.out.println("No matches found for shipment ID: " + shipmentId);
             return ResponseEntity.noContent().build();
