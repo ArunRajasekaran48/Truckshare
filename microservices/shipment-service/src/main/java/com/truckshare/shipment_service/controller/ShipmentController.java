@@ -1,19 +1,13 @@
 package com.truckshare.shipment_service.controller;
 
 
+import com.truckshare.shipment_service.entity.Shipment;
 import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.truckshare.shipment_service.dto.ShipmentRequestDto;
 import com.truckshare.shipment_service.dto.ShipmentResponseDto;
@@ -68,5 +62,15 @@ public class ShipmentController {
     public ResponseEntity<Void> updateShipmentStatus(@PathVariable UUID id, @RequestBody ShipmentStatus status) {
         shipmentService.updateShipmentStatus(id, status);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{shipmentId}/allocate")
+    public ResponseEntity<Shipment> updateAllocation(
+            @PathVariable UUID shipmentId,
+            @RequestParam Double allocatedWeight,
+            @RequestParam Double allocatedVolume
+    ) {
+        Shipment updated = shipmentService.updateAllocation(shipmentId, allocatedWeight, allocatedVolume);
+        return ResponseEntity.ok(updated);
     }
 }

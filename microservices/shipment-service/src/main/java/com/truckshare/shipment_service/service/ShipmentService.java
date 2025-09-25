@@ -50,4 +50,44 @@ public class ShipmentService {
         Shipment updatedShipment = shipmentRepository.save(shipment);
         return ShipmentMapper.toDto(updatedShipment);
     }
+
+    public Shipment updateAllocation(UUID shipmentId, Double allocatedWeight, Double allocatedVolume) {
+        Shipment shipment = shipmentRepository.findById(shipmentId)
+                .orElseThrow(() -> new RuntimeException("Shipment not found"));
+
+        if (!shipment.getIsSplit()) {
+            if (!shipment.getStatus().equals(ShipmentStatus.MATCHED)) {
+                throw new RuntimeException("Shipment already booked or partially allocated");
+            }
+
+            if (allocatedWeight < shipment.getRequiredWeight()
+                    || allocatedVolume < shipment.getRequiredVolume()) {
+                throw new RuntimeException("Non-split shipment must be fully allocated in one booking");
+            }
+
+            shipment.setAllocatedWeight(allocatedWeight);
+            shipment.setAllocatedVolume(allocatedVolume);
+            shipment.setStatus(ShipmentStatus.BOOKED);
+
+        } else {
+            double newWeight = shipment.getAllocatedWeight() + allocatedWeight;
+            double newVolume = shipment.getAllocatedVolume() + allocatedVolume;
+
+            if (newWeight > shipment.getRequiredWeight() || newVolume > shipment.getRequiredVolume()) {
+                throw new RuntimeException("Allocation exceeds shipment requirement");
+            }
+
+            shipment.setAllocatedWeight(newWeight);
+            shipment.setAllocatedVolume(newVolume);
+
+            if (newWeight==(shipment.getRequiredWeight())
+                    && newVolume==(shipment.getRequiredVolume())) {
+                shipment.setStatus(ShipmentStatus.BOOKED);
+            } else {
+                shipment.setStatus(ShipmentStatus.PARTIALLY_BOOKED);
+            }
+        }
+
+        return shipmentRepository.save(shipment);
+    }
 }

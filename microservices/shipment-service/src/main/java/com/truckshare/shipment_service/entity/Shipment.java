@@ -37,6 +37,11 @@ public class Shipment {
     private Double requiredVolume;
 
     @Column(nullable = false)
+    private Double allocatedWeight = 0d;
+    @Column(nullable = false)
+    private Double allocatedVolume = 0d;
+
+    @Column(nullable = false)
     private Boolean isSplit;
 
     @Enumerated(EnumType.STRING)
@@ -44,6 +49,7 @@ public class Shipment {
 
     @CreationTimestamp
     private Instant createdAt;
+
     @UpdateTimestamp
     private Instant updatedAt;
 }
