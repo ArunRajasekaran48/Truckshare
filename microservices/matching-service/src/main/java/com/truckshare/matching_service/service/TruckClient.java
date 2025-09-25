@@ -5,9 +5,12 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import com.truckshare.matching_service.dto.TruckResponseDTO;
+import com.truckshare.matching_service.service.fallback.TruckClientFallback;
+
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "TRUCK-SERVICE")
+
+@FeignClient(name = "TRUCK-SERVICE", fallback = TruckClientFallback.class)
 public interface TruckClient {
     @GetMapping("/trucks/search")
     List<TruckResponseDTO> searchTrucks(
