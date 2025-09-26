@@ -10,6 +10,7 @@ import java.util.UUID;
 @FeignClient(name = "SHIPMENT-SERVICE")
 public interface ShipmentClient {
 
+    // Finalize allocation and set shipment to BOOKED
     @PutMapping("/shipments/{shipmentId}/allocate")
     void updateAllocation(
             @PathVariable("shipmentId") UUID shipmentId,

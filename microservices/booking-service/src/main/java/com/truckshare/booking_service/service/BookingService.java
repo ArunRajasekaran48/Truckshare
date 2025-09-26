@@ -7,7 +7,7 @@ import com.truckshare.booking_service.dto.ShipmentTruckResponse;
 import com.truckshare.booking_service.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -16,9 +16,8 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final ShipmentClient shipmentClient;
 
-    @Transactional
     public ShipmentTruckResponse createBooking(CreateBookingRequest request) {
-        // Save booking
+        // Save booking with paymentConfirmed default false
         ShipmentTruck booking = ShipmentTruck.builder()
                 .shipmentId(request.getShipmentId())
                 .truckId(request.getTruckId())
@@ -27,14 +26,29 @@ public class BookingService {
                 .build();
 
         ShipmentTruck saved = bookingRepository.save(booking);
+        return BookingMapper.toResponse(saved);
+    }
 
-        // Call Shipment Service to update allocation & status
+    public ShipmentTruckResponse acknowledgePayment(UUID bookingId) {
+        // Load booking or fail
+        ShipmentTruck booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found: " + bookingId));
+
+        // Idempotent: if already confirmed, return
+        if (Boolean.TRUE.equals(booking.getPaymentConfirmed())) {
+            return BookingMapper.toResponse(booking);
+        }
+
+        // Call shipment service to finalize allocation and set shipment to BOOKED
         shipmentClient.updateAllocation(
-                request.getShipmentId(),
-                request.getAllocatedWeight(),
-                request.getAllocatedVolume()
+                booking.getShipmentId(),
+                booking.getAllocatedWeight(),
+                booking.getAllocatedVolume()
         );
 
-        return BookingMapper.toResponse(saved);
+        // Mark as paid only after successful remote call
+        booking.setPaymentConfirmed(true);
+        ShipmentTruck updated = bookingRepository.save(booking);
+        return BookingMapper.toResponse(updated);
     }
 }
