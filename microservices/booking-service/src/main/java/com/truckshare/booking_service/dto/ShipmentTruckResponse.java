@@ -19,5 +19,7 @@ public class ShipmentTruckResponse {
     private Double allocatedWeight;
     private Double allocatedVolume;
     private Boolean paymentConfirmed;
+    private String paymentReference;
+    private Instant paymentConfirmedAt;
     private Instant createdAt;
 }

@@ -34,7 +34,13 @@ public class ShipmentTruck {
     @Column(nullable = false)
     private Double allocatedVolume;
 
+    // Payment fields
     private Boolean paymentConfirmed = false;
+
+    @Column(length = 100)
+    private String paymentReference; // simple text reference (e.g., UPI ref)
+
+    private Instant paymentConfirmedAt; // set when acknowledged
 
     @CreationTimestamp
     private Instant createdAt;

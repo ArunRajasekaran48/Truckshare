@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -37,8 +38,11 @@ public class Shipment {
     private Double requiredVolume;
 
     @Column(nullable = false)
+    @ColumnDefault("0")
     private Double allocatedWeight = 0d;
+
     @Column(nullable = false)
+    @ColumnDefault("0")
     private Double allocatedVolume = 0d;
 
     @Column(nullable = false)

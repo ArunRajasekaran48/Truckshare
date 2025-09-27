@@ -23,9 +23,11 @@ public class BookingController {
     }
 
     // Acknowledge payment by truck owner
-    @PatchMapping("/{bookingId}/acknowledge-payment")
-    public ResponseEntity<ShipmentTruckResponse> acknowledgePayment(@PathVariable UUID bookingId) {
-        ShipmentTruckResponse updated = bookingService.acknowledgePayment(bookingId);
+    @PutMapping("/{bookingId}/acknowledge-payment")
+    public ResponseEntity<ShipmentTruckResponse> acknowledgePayment(
+            @PathVariable UUID bookingId,
+            @RequestBody String paymentReference) {
+        ShipmentTruckResponse updated = bookingService.acknowledgePayment(bookingId, paymentReference);
         return ResponseEntity.ok(updated);
     }
 }
