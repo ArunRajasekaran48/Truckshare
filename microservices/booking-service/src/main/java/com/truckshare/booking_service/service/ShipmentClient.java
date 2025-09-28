@@ -1,6 +1,7 @@
 package com.truckshare.booking_service.service;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,4 +18,8 @@ public interface ShipmentClient {
             @RequestParam("allocatedWeight") Double allocatedWeight,
             @RequestParam("allocatedVolume") Double allocatedVolume
     );
+
+    // Check if shipment is splittable
+    @GetMapping("/shipments/{shipmentId}/splittable")
+    boolean isSplittable(@PathVariable("shipmentId") UUID shipmentId);
 }

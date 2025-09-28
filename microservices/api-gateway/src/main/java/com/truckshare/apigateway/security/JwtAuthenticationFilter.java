@@ -24,7 +24,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-    @Value("${jwt.public-paths:/users/login,/users/register,/actuator/**}")
+    @Value("${jwt.public-paths:/users/login,/users/register,/users/getAllUsers,/actuator/**}")
     private String publicPathsCsv;
 
     private List<String> getPublicPaths() {

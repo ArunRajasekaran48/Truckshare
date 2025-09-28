@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -51,5 +52,9 @@ public class UserService {
 
         // Create and return response using mapper
         return UserMapper.toRegisterResponse(savedUser);
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 }

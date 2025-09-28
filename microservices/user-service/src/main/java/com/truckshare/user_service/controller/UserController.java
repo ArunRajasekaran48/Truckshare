@@ -3,12 +3,16 @@ package com.truckshare.user_service.controller;
 
 import com.truckshare.user_service.dto.RegisterRequestdto;
 import com.truckshare.user_service.dto.RegisterResponsedto;
+import com.truckshare.user_service.entity.User;
 import com.truckshare.user_service.dto.LoginRequestdto;
 import com.truckshare.user_service.dto.LoginResponsedto;
 import com.truckshare.user_service.security.JwtUtil;
 import com.truckshare.user_service.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -42,8 +46,9 @@ public class UserController {
         return ResponseEntity.ok(new LoginResponsedto(token, "Bearer"));
     }
 
-    @GetMapping("/hi")
-    public String sayHi(){
-        return "Vanakkam da maapla!!";
+    @GetMapping("/getAllUsers")
+    public ResponseEntity<List<User>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
+    
 }

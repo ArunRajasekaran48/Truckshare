@@ -1,6 +1,5 @@
 package com.truckshare.shipment_service.controller;
 
-
 import com.truckshare.shipment_service.entity.Shipment;
 import lombok.RequiredArgsConstructor;
 
@@ -21,12 +20,12 @@ import com.truckshare.shipment_service.service.ShipmentService;
 public class ShipmentController {
     private final ShipmentService shipmentService;
 
-   @PostMapping
+    @PostMapping
     public ResponseEntity<ShipmentResponseDto> createShipment(
-        @RequestHeader("UserId")String businessUserId,
-        @RequestHeader("UserRole") String role,
-        @RequestBody ShipmentRequestDto dto) {
-        if(!role.equals("BUSINESS_USER")) {
+            @RequestHeader("UserId") String businessUserId,
+            @RequestHeader("UserRole") String role,
+            @RequestBody ShipmentRequestDto dto) {
+        if (!role.equals("BUSINESS_USER")) {
             throw new UnauthorizedShipmentAccessException("Only business users can create shipments");
         }
         dto.setBusinessUserId(businessUserId);
@@ -43,21 +42,22 @@ public class ShipmentController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ShipmentResponseDto> updateShipment(
-        @RequestHeader("UserId")String businessUserId,
-        @RequestHeader("UserRole") String role,
-        @PathVariable UUID id, @RequestBody ShipmentRequestDto dto) {
-        if(!role.equals("BUSINESS_USER")) {
+            @RequestHeader("UserId") String businessUserId,
+            @RequestHeader("UserRole") String role,
+            @PathVariable UUID id, @RequestBody ShipmentRequestDto dto) {
+        if (!role.equals("BUSINESS_USER")) {
             throw new UnauthorizedShipmentAccessException("Only business users can update shipments");
         }
-        //check if the shipment belongs to the user
+        // check if the shipment belongs to the user
         ShipmentResponseDto existingShipment = shipmentService.getShipmentById(id);
-        if(!existingShipment.getBusinessUserId().equals(businessUserId)) {
+        if (!existingShipment.getBusinessUserId().equals(businessUserId)) {
             throw new UnauthorizedShipmentAccessException("Shipment does not belong to the user");
         }
         dto.setBusinessUserId(businessUserId);
         ShipmentResponseDto updatedShipment = shipmentService.updateShipment(id, dto);
         return ResponseEntity.ok(updatedShipment);
     }
+
     @PutMapping("/{id}/status")
     public ResponseEntity<Void> updateShipmentStatus(@PathVariable UUID id, @RequestBody ShipmentStatus status) {
         shipmentService.updateShipmentStatus(id, status);
@@ -68,9 +68,14 @@ public class ShipmentController {
     public ResponseEntity<Shipment> updateAllocation(
             @PathVariable UUID shipmentId,
             @RequestParam Double allocatedWeight,
-            @RequestParam Double allocatedVolume
-    ) {
+            @RequestParam Double allocatedVolume) {
         Shipment updated = shipmentService.updateAllocation(shipmentId, allocatedWeight, allocatedVolume);
         return ResponseEntity.ok(updated);
+    }
+
+    @GetMapping("/{shipmentId}/splittable")
+    public ResponseEntity<Boolean> isSplittable(@PathVariable UUID shipmentId) {
+        ShipmentResponseDto shipment = shipmentService.getShipmentById(shipmentId);
+        return ResponseEntity.ok(shipment.getIsSplit());
     }
 }

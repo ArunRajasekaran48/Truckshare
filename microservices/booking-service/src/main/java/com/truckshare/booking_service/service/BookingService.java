@@ -7,6 +7,8 @@ import com.truckshare.booking_service.dto.ShipmentTruckResponse;
 import com.truckshare.booking_service.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestHeader;
+
 import java.util.UUID;
 import java.time.Instant;
 
@@ -20,13 +22,19 @@ public class BookingService {
     public ShipmentTruckResponse createBooking(CreateBookingRequest request) {
         // Save booking with paymentConfirmed default false
         ShipmentTruck booking = BookingMapper.toEntity(request);
+         //Validate if it is Non Splittable shipment and Throw exception if they are trying to create multiple bookings
+        if(!shipmentClient.isSplittable(booking.getShipmentId())) {
+            throw new IllegalArgumentException("Non-splittable shipments cannot be split into multiple bookings");
+        }
         booking.setCreatedAt(Instant.now());
         booking.setPaymentConfirmed(false);
         ShipmentTruck saved = bookingRepository.save(booking);
         return BookingMapper.toResponse(saved);
     }
 
-    public ShipmentTruckResponse acknowledgePayment(UUID bookingId, String paymentReference) {
+    public ShipmentTruckResponse acknowledgePayment(
+        UUID bookingId, String paymentReference) {
+      
         // Load booking or fail
         ShipmentTruck booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found: " + bookingId));

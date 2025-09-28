@@ -17,7 +17,15 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
-    public ResponseEntity<ShipmentTruckResponse> bookTruck(@RequestBody CreateBookingRequest request) {
+    public ResponseEntity<ShipmentTruckResponse> bookTruck(
+        @RequestHeader("UserId") String businessUserId,
+        @RequestHeader("UserRole") String role,
+        @RequestBody CreateBookingRequest request) {
+        //only Business User can create booking 
+        if(!role.equals("BUSINESS_USER")) {
+            throw new IllegalArgumentException("Only business users can create bookings");
+        }
+        //To do: Validate if the shipment belongs to the business user
         ShipmentTruckResponse booking = bookingService.createBooking(request);
         return ResponseEntity.ok(booking);
     }
@@ -25,8 +33,14 @@ public class BookingController {
     // Acknowledge payment by truck owner
     @PutMapping("/{bookingId}/acknowledge-payment")
     public ResponseEntity<ShipmentTruckResponse> acknowledgePayment(
+            @RequestHeader("UserId") String truckOwnerId,
+            @RequestHeader("UserRole") String role,
             @PathVariable UUID bookingId,
             @RequestBody String paymentReference) {
+        if(!role.equals("TRUCK_OWNER")) {
+            throw new IllegalArgumentException("Only truck owners can acknowledge payment");
+        }
+        //To do: Validate if the booking belongs to the truck owner
         ShipmentTruckResponse updated = bookingService.acknowledgePayment(bookingId, paymentReference);
         return ResponseEntity.ok(updated);
     }
