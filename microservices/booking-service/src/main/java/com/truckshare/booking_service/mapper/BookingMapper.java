@@ -25,6 +25,7 @@ public class BookingMapper {
                 .truckId(request.getTruckId())
                 .allocatedWeight(request.getAllocatedWeight())
                 .allocatedVolume(request.getAllocatedVolume())
+                .businessUserId(request.getBusinessUserId())
                 .build();
     }
 }

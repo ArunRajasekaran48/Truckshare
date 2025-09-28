@@ -156,4 +156,9 @@ public class TruckController {
         TruckResponseDTO updated = truckService.updateStatus(id, status);
         return ResponseEntity.ok(updated);
     }
+
+    // @GetMapping("/trucks/{truckId}/owner")
+    // String getTruckOwnerId(@PathVariable("truckId") UUID truckId){
+    //     return truckService.getTruckById(truckId).getOwnerId();
+    // }
 }

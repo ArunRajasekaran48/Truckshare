@@ -33,6 +33,8 @@ public class ShipmentMapper {
                 .toLocation(shipment.getToLocation())
                 .requiredWeight(shipment.getRequiredWeight())
                 .requiredVolume(shipment.getRequiredVolume())
+                .allocatedWeight(shipment.getAllocatedWeight())
+                .allocatedVolume(shipment.getAllocatedVolume())
                 .isSplit(shipment.getIsSplit())
                 .status(shipment.getStatus())
                 .build();

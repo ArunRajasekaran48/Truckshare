@@ -7,11 +7,12 @@ import com.truckshare.shipment_service.entity.ShipmentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-
 public class ShipmentResponseDto {
     private UUID id;
     private String businessUserId;
@@ -19,6 +20,8 @@ public class ShipmentResponseDto {
     private String toLocation;
     private Double requiredWeight;
     private Double requiredVolume;
+    private Double allocatedWeight;
+    private Double allocatedVolume;
     private Boolean isSplit;
     private ShipmentStatus status;
 }

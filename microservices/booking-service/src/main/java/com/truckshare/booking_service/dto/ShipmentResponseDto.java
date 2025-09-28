@@ -1,12 +1,17 @@
-package com.truckshare.matching_service.dto;
+package com.truckshare.booking_service.dto;
 
-import java.util.UUID;
-
+import com.truckshare.booking_service.dto.enums.ShipmentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
+/**
+ * Lightweight copy of the shipment-service response so booking-service can perform
+ * pre-booking validation without depending directly on the shipment module.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

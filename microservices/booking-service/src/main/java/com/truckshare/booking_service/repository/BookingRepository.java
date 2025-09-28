@@ -15,4 +15,9 @@ public interface BookingRepository extends JpaRepository<ShipmentTruck, UUID> {
 
     // Get all bookings for a specific truck
     List<ShipmentTruck> findByTruckId(UUID truckId);
+
+    boolean existsByShipmentIdAndTruckIdAndBusinessUserId(UUID shipmentId,
+                                                     UUID truckId,
+                                                     String businessUserId);
+
 }

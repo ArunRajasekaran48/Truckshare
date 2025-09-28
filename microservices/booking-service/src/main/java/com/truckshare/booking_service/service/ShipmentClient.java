@@ -1,5 +1,6 @@
 package com.truckshare.booking_service.service;
 
+import com.truckshare.booking_service.dto.ShipmentResponseDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +12,10 @@ import java.util.UUID;
 @FeignClient(name = "SHIPMENT-SERVICE")
 public interface ShipmentClient {
 
+    // Retrieve shipment details for validation
+    @GetMapping("/shipments/{shipmentId}")
+    ShipmentResponseDto getShipmentById(@PathVariable("shipmentId") UUID shipmentId);
+
     // Finalize allocation and set shipment to BOOKED
     @PutMapping("/shipments/{shipmentId}/allocate")
     void updateAllocation(
@@ -19,7 +24,7 @@ public interface ShipmentClient {
             @RequestParam("allocatedVolume") Double allocatedVolume
     );
 
-    // Check if shipment is splittable
-    @GetMapping("/shipments/{shipmentId}/splittable")
-    boolean isSplittable(@PathVariable("shipmentId") UUID shipmentId);
+    //get truck ownerid by truck id
+    // @GetMapping("/trucks/{truckId}/owner")
+    // String getTruckOwnerId(@PathVariable("truckId") UUID truckId);
 }

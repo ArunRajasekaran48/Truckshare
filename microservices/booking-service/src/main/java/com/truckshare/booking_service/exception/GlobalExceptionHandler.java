@@ -20,6 +20,18 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.BAD_REQUEST, "Non Splittable Shipment", ex.getMessage(), request);
     }
 
+    @ExceptionHandler(ShipmentAlreadyBookedException.class)
+    public ResponseEntity<ErrorResponse> handleShipmentAlreadyBooked(ShipmentAlreadyBookedException ex,
+                                                                     HttpServletRequest request) {
+        return buildResponse(HttpStatus.CONFLICT, "Shipment Already Booked", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(AllocationExceededException.class)
+    public ResponseEntity<ErrorResponse> handleAllocationExceeded(AllocationExceededException ex,
+                                                                  HttpServletRequest request) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "Allocation Exceeded", ex.getMessage(), request);
+    }
+
     @ExceptionHandler(BookingNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleBookingNotFound(BookingNotFoundException ex,
                                                                HttpServletRequest request) {
@@ -36,6 +48,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleUnauthorizedRole(UnauthorizedRoleException ex,
                                                                 HttpServletRequest request) {
         return buildResponse(HttpStatus.FORBIDDEN, "Forbidden", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(ShipmentOwnershipException.class)
+    public ResponseEntity<ErrorResponse> handleShipmentOwnership(ShipmentOwnershipException ex,
+                                                                 HttpServletRequest request) {
+        return buildResponse(HttpStatus.FORBIDDEN, "Shipment Ownership", ex.getMessage(), request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
