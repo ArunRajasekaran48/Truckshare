@@ -1,14 +1,15 @@
 package com.truckshare.booking_service.service;
 
 import com.truckshare.booking_service.dto.CreateBookingRequest;
-import com.truckshare.booking_service.entity.ShipmentTruck;
-import com.truckshare.booking_service.mapper.BookingMapper;
 import com.truckshare.booking_service.dto.ShipmentTruckResponse;
+import com.truckshare.booking_service.entity.ShipmentTruck;
+import com.truckshare.booking_service.exception.BookingAlreadyPaidException;
+import com.truckshare.booking_service.exception.BookingNotFoundException;
+import com.truckshare.booking_service.exception.NonSplittableShipmentException;
+import com.truckshare.booking_service.mapper.BookingMapper;
 import com.truckshare.booking_service.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestHeader;
-
 import java.util.UUID;
 import java.time.Instant;
 
@@ -22,9 +23,9 @@ public class BookingService {
     public ShipmentTruckResponse createBooking(CreateBookingRequest request) {
         // Save booking with paymentConfirmed default false
         ShipmentTruck booking = BookingMapper.toEntity(request);
-         //Validate if it is Non Splittable shipment and Throw exception if they are trying to create multiple bookings
-        if(!shipmentClient.isSplittable(booking.getShipmentId())) {
-            throw new IllegalArgumentException("Non-splittable shipments cannot be split into multiple bookings");
+        // Validate if it is Non Splittable shipment and throw exception if they are trying to create multiple bookings
+        if (!shipmentClient.isSplittable(booking.getShipmentId())) {
+            throw new NonSplittableShipmentException("Non-splittable shipments cannot be split into multiple bookings");
         }
         booking.setCreatedAt(Instant.now());
         booking.setPaymentConfirmed(false);
@@ -37,11 +38,11 @@ public class BookingService {
       
         // Load booking or fail
         ShipmentTruck booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new IllegalArgumentException("Booking not found: " + bookingId));
+                .orElseThrow(() -> new BookingNotFoundException("Booking not found: " + bookingId));
 
         // Idempotent: if already confirmed, return
-        if (booking.getPaymentConfirmed() != null && booking.getPaymentConfirmed()) {
-            return BookingMapper.toResponse(booking);
+        if (Boolean.TRUE.equals(booking.getPaymentConfirmed())) {
+            throw new BookingAlreadyPaidException("Payment is already acknowledged for booking: " + bookingId);
         }
 
         // Call shipment service to finalize allocation and set shipment to BOOKED

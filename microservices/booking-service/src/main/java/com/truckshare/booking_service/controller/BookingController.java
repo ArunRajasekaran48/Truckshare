@@ -2,6 +2,7 @@ package com.truckshare.booking_service.controller;
 
 import com.truckshare.booking_service.dto.CreateBookingRequest;
 import com.truckshare.booking_service.dto.ShipmentTruckResponse;
+import com.truckshare.booking_service.exception.UnauthorizedRoleException;
 import com.truckshare.booking_service.service.BookingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +23,8 @@ public class BookingController {
         @RequestHeader("UserRole") String role,
         @RequestBody CreateBookingRequest request) {
         //only Business User can create booking 
-        if(!role.equals("BUSINESS_USER")) {
-            throw new IllegalArgumentException("Only business users can create bookings");
+        if (!"BUSINESS_USER".equals(role)) {
+            throw new UnauthorizedRoleException("Only business users can create bookings");
         }
         //To do: Validate if the shipment belongs to the business user
         ShipmentTruckResponse booking = bookingService.createBooking(request);
@@ -37,8 +38,8 @@ public class BookingController {
             @RequestHeader("UserRole") String role,
             @PathVariable UUID bookingId,
             @RequestBody String paymentReference) {
-        if(!role.equals("TRUCK_OWNER")) {
-            throw new IllegalArgumentException("Only truck owners can acknowledge payment");
+        if (!"TRUCK_OWNER".equals(role)) {
+            throw new UnauthorizedRoleException("Only truck owners can acknowledge payment");
         }
         //To do: Validate if the booking belongs to the truck owner
         ShipmentTruckResponse updated = bookingService.acknowledgePayment(bookingId, paymentReference);
