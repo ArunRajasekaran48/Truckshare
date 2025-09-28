@@ -3,6 +3,7 @@ package com.truckshare.booking_service.service;
 import com.truckshare.booking_service.dto.CreateBookingRequest;
 import com.truckshare.booking_service.dto.ShipmentResponseDto;
 import com.truckshare.booking_service.dto.ShipmentTruckResponse;
+import com.truckshare.booking_service.dto.TruckResponsedto;
 import com.truckshare.booking_service.dto.enums.ShipmentStatus;
 import com.truckshare.booking_service.entity.ShipmentTruck;
 import com.truckshare.booking_service.exception.AllocationExceededException;
@@ -28,6 +29,7 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final ShipmentClient shipmentClient;
+    private final TruckClient truckClient;
 
     public ShipmentTruckResponse createBooking(CreateBookingRequest request) {
         ShipmentResponseDto shipment = shipmentClient.getShipmentById(request.getShipmentId());
@@ -99,8 +101,7 @@ public class BookingService {
 
     public ShipmentTruckResponse acknowledgePayment(
             UUID bookingId, String paymentReference) {
-        
-        
+
         // Load booking or fail
         ShipmentTruck booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new BookingNotFoundException("Booking not found: " + bookingId));
@@ -111,15 +112,22 @@ public class BookingService {
         }
 
         // Call shipment service to finalize allocation and set shipment to BOOKED
-        shipmentClient.updateAllocation(
-                booking.getShipmentId(),
-                booking.getAllocatedWeight(),
+        shipmentClient.updateAllocation(booking.getShipmentId(), booking.getAllocatedWeight(),
                 booking.getAllocatedVolume());
+        // Call truck service to update truck available capacity
+        TruckResponsedto updatedTruck = truckClient.updateCapacity(booking.getTruckId(), booking.getAllocatedWeight(),
+                booking.getAllocatedVolume(), truckClient.getTruckOwnerId(booking.getTruckId()), "TRUCK_OWNER");
+        // update truck status if fully booked
+        if (updatedTruck.getAvailableWeight() <= 0 || updatedTruck.getAvailableVolume() <= 0) {
+            truckClient.updateStatus(booking.getTruckId(), "FULL",
+                    truckClient.getTruckOwnerId(booking.getTruckId()), "TRUCK_OWNER");
+        }
 
         // Mark as paid only after successful remote call
         booking.setPaymentConfirmed(true);
         booking.setPaymentReference(paymentReference);
         booking.setPaymentConfirmedAt(Instant.now());
+
         ShipmentTruck updated = bookingRepository.save(booking);
         return BookingMapper.toResponse(updated);
     }

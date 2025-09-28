@@ -23,8 +23,4 @@ public interface ShipmentClient {
             @RequestParam("allocatedWeight") Double allocatedWeight,
             @RequestParam("allocatedVolume") Double allocatedVolume
     );
-
-    //get truck ownerid by truck id
-    // @GetMapping("/trucks/{truckId}/owner")
-    // String getTruckOwnerId(@PathVariable("truckId") UUID truckId);
 }

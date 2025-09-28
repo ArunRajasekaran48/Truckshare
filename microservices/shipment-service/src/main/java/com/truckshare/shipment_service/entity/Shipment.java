@@ -13,12 +13,12 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.Instant;
 import java.util.UUID;
 
+@Builder
 @Entity
 @Table(name = "shipments")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class Shipment {
 
     @Id
@@ -37,13 +37,16 @@ public class Shipment {
     @Column(nullable = false)
     private Double requiredVolume;
 
-    @Column(nullable = false)
+//    @Column(nullable = false)
+    @Builder.Default
     @ColumnDefault("0")
     private Double allocatedWeight = 0d;
 
-    @Column(nullable = false)
+//    @Column(nullable = false)
+    @Builder.Default
     @ColumnDefault("0")
     private Double allocatedVolume = 0d;
+
 
     @Column(nullable = false)
     private Boolean isSplit;

@@ -5,7 +5,7 @@ import com.truckshare.booking_service.dto.ShipmentTruckResponse;
 import com.truckshare.booking_service.exception.ShipmentOwnershipException;
 import com.truckshare.booking_service.exception.UnauthorizedRoleException;
 import com.truckshare.booking_service.service.BookingService;
-import com.truckshare.booking_service.service.ShipmentClient;
+import com.truckshare.booking_service.service.TruckClient;
 
 import feign.Response;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ import java.util.UUID;
 public class BookingController {
 
     private final BookingService bookingService;
-    // private final ShipmentClient shipmentClient;
+    private final TruckClient truckClient;
     @PostMapping
     public ResponseEntity<ShipmentTruckResponse> bookTruck(
         @RequestHeader("UserId") String businessUserId,
@@ -37,20 +37,19 @@ public class BookingController {
     }
 
     // Acknowledge payment by truck owner
-    @PutMapping("/{bookingId}/acknowledge-payment")
+    @PutMapping("/{bookingId}/acknowledge-payment/{paymentReference}")
     public ResponseEntity<ShipmentTruckResponse> acknowledgePayment(
             @RequestHeader("UserId") String truckOwnerId,
             @RequestHeader("UserRole") String role,
             @PathVariable UUID bookingId,
-            @RequestBody String paymentReference) {
+            @PathVariable String paymentReference) {
         if (!"TRUCK_OWNER".equals(role)) {
             throw new UnauthorizedRoleException("Only truck owners can acknowledge payment");
         }
-          //To do: Validate if the booking belongs to the truck owner
-        //  if(!truckOwnerId.equals(shipmentClient.getTruckOwnerId(bookingService.getBookingById(bookingId).getTruckId()))) {
-        //      throw new ShipmentOwnershipException("This booking does not belong to the truck owner");
-        //  }
-
+        //   To do: Validate if the booking belongs to the truck owner
+         if(!truckOwnerId.equals(truckClient.getTruckOwnerId(bookingService.getBookingById(bookingId).getTruckId()))) {
+             throw new ShipmentOwnershipException("This booking does not belong to the truck owner");
+         }
         ShipmentTruckResponse updated = bookingService.acknowledgePayment(bookingId, paymentReference);
         return ResponseEntity.ok(updated);
     }

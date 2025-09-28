@@ -157,8 +157,8 @@ public class TruckController {
         return ResponseEntity.ok(updated);
     }
 
-    // @GetMapping("/trucks/{truckId}/owner")
-    // String getTruckOwnerId(@PathVariable("truckId") UUID truckId){
-    //     return truckService.getTruckById(truckId).getOwnerId();
-    // }
+    @GetMapping("/{truckId}/owner")
+    String getTruckOwnerId(@PathVariable("truckId") UUID truckId) {
+        return truckService.getTruckById(truckId).getOwnerId();
+    }
 }
