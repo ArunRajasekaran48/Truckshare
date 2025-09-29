@@ -8,6 +8,24 @@ TruckShare links truck owners who have spare space with businesses that need to 
 ## Goal
 Lower shipping cost and waste by matching available truck space with shipment needs. This makes shipping smaller loads cheaper and more flexible.
 
+## Architecture
+
+- **Microservices**: Spring Boot applications with service discovery
+- **Database**: PostgreSQL
+- **Communication**: OpenFeign for inter-service communication
+- **Gateway**: API Gateway for routing requests
+
+## Services
+
+- `api-gateway` - Routes requests to appropriate services
+- `service-registry` - Eureka service discovery
+- `user-service` - User management and authentication
+- `truck-service` - Truck registration and capacity management
+- `shipment-service` - Shipment creation and tracking
+- `matching-service` - Matches shipments with available trucks
+- `booking-service` - Booking management and payment processing
+- `tracking-service` - Tracking information for shipments
+
 ## Who it helps
 - **Truck owners** — earn from empty or partly empty trips.
 - **Businesses** — ship small loads without paying for a full truck.
