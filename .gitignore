@@ -1,2 +1,53 @@
 **/.idea/
 .zencoder/rules/repo.md
+
+# Client-side dependencies and build artifacts
+client/node_modules/
+client/dist/
+client/dist-ssr/
+client/.vite/
+client/coverage/
+
+# Environment files
+client/.env
+client/.env.local
+client/.env.development.local
+client/.env.test.local
+client/.env.production.local
+
+# Client logs
+client/logs/
+client/*.log
+client/npm-debug.log*
+client/yarn-debug.log*
+client/yarn-error.log*
+client/pnpm-debug.log*
+client/lerna-debug.log*
+
+# Client cache and temporary files
+client/.cache/
+client/.parcel-cache/
+client/.next/
+client/out/
+client/build/
+client/.nuxt/
+client/.output/
+client/.vercel/
+client/.netlify/
+
+# Tailwind CSS
+client/.tailwindcss-cache
+
+# Client testing
+client/.nyc_output/
+client/coverage/
+client/*.lcov
+
+# Client OS generated files
+client/.DS_Store
+client/.DS_Store?
+client/._*
+client/.Spotlight-V100
+client/.Trashes
+client/ehthumbs.db
+client/Thumbs.db
