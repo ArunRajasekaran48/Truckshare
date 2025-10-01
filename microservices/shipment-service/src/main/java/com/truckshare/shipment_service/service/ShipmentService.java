@@ -4,9 +4,11 @@ import com.truckshare.shipment_service.dto.ShipmentRequestDto;
 import com.truckshare.shipment_service.dto.ShipmentResponseDto;
 import com.truckshare.shipment_service.entity.Shipment;
 import com.truckshare.shipment_service.entity.ShipmentStatus;
+import com.truckshare.shipment_service.exception.InvalidShipmentAllocationException;
+import com.truckshare.shipment_service.exception.ShipmentAlreadyBookedException;
+import com.truckshare.shipment_service.exception.ShipmentNotFoundException;
 import com.truckshare.shipment_service.mapper.ShipmentMapper;
 import com.truckshare.shipment_service.repository.ShipmentRepository;
-import com.truckshare.shipment_service.exception.ShipmentNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -53,16 +55,18 @@ public class ShipmentService {
 
     public Shipment updateAllocation(UUID shipmentId, Double allocatedWeight, Double allocatedVolume) {
         Shipment shipment = shipmentRepository.findById(shipmentId)
-                .orElseThrow(() -> new RuntimeException("Shipment not found"));
+                .orElseThrow(() -> new ShipmentNotFoundException("Shipment not found with id: " + shipmentId));
 
         if (!shipment.getIsSplit()) {
             if (!shipment.getStatus().equals(ShipmentStatus.MATCHED)) {
-                throw new RuntimeException("Shipment already booked or partially allocated");
+                throw new ShipmentAlreadyBookedException(
+                        "Shipment " + shipmentId + " is already booked or partially allocated");
             }
 
             if (allocatedWeight < shipment.getRequiredWeight()
                     || allocatedVolume < shipment.getRequiredVolume()) {
-                throw new RuntimeException("Non-split shipment must be fully allocated in one booking");
+                throw new InvalidShipmentAllocationException(
+                        "Non-split shipment must be fully allocated in one booking");
             }
 
             shipment.setAllocatedWeight(allocatedWeight);
@@ -74,7 +78,7 @@ public class ShipmentService {
             double newVolume = shipment.getAllocatedVolume() + allocatedVolume;
 
             if (newWeight > shipment.getRequiredWeight() || newVolume > shipment.getRequiredVolume()) {
-                throw new RuntimeException("Allocation exceeds shipment requirement");
+                throw new InvalidShipmentAllocationException("Allocation exceeds shipment requirement");
             }
 
             shipment.setAllocatedWeight(newWeight);
