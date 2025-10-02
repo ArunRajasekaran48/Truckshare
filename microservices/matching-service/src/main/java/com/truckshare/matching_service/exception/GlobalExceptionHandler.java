@@ -2,34 +2,45 @@ package com.truckshare.matching_service.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@ControllerAdvice
+import jakarta.servlet.http.HttpServletRequest;
+
+@RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(ShipmentNotFoundException.class)
-    public ResponseEntity<String> handleShipmentNotFound(ShipmentNotFoundException ex, WebRequest request) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleShipmentNotFound(ShipmentNotFoundException ex, HttpServletRequest request) {
+        return buildResponse(HttpStatus.NOT_FOUND, "Shipment Not Found", ex.getMessage(), request);
     }
 
     @ExceptionHandler(NoMatchingTrucksException.class)
-    public ResponseEntity<String> handleNoMatchingTrucks(NoMatchingTrucksException ex, WebRequest request) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleNoMatchingTrucks(NoMatchingTrucksException ex, HttpServletRequest request) {
+        return buildResponse(HttpStatus.NOT_FOUND, "No Matching Trucks Found", ex.getMessage(), request);
     }
 
     @ExceptionHandler(ExternalServiceUnavailableException.class)
-    public ResponseEntity<String> handleExternalServiceUnavailable(ExternalServiceUnavailableException ex, WebRequest request) {
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleExternalServiceUnavailable(ExternalServiceUnavailableException ex, HttpServletRequest request) {
+        return buildResponse(HttpStatus.SERVICE_UNAVAILABLE, "External Service Unavailable", ex.getMessage(), request);
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleRuntimeException(RuntimeException ex, WebRequest request) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex, HttpServletRequest request) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "Runtime Exception", ex.getMessage(), request);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleAll(Exception ex, WebRequest request) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
+    public ResponseEntity<ErrorResponse> handleAll(Exception ex, HttpServletRequest request) {
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", ex.getMessage(), request);
+    }
+    private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String error, String message,
+                                                        HttpServletRequest request) {
+        ErrorResponse payload = ErrorResponse.builder()
+                .status(status.value())
+                .error(error)
+                .message(message)
+                .path(request.getRequestURI())
+                .build();
+        return ResponseEntity.status(status).body(payload);
     }
 }
