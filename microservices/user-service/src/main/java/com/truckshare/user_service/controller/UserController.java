@@ -39,16 +39,25 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponsedto> login(@Valid @RequestBody LoginRequestdto loginRequest) {
-        Authentication authentication = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUserId(), loginRequest.getPassword()));
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String token = jwtUtil.generateToken(userDetails);
-        return ResponseEntity.ok(new LoginResponsedto(token, "Bearer"));
+        try {
+            Authentication authentication = authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUserId(), loginRequest.getPassword()));
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String token = jwtUtil.generateToken(userDetails);
+            return ResponseEntity.ok(new LoginResponsedto(token, "Bearer"));
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage()); 
+        }
     }
 
     @GetMapping("/getAllUsers")
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+    @GetMapping("/{userId}")
+    public ResponseEntity<User> getUserByUserId(@PathVariable String userId) {
+        User user = userService.getUserByUserId(userId);
+        return ResponseEntity.ok(user);
     }
     
 }

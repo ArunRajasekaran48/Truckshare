@@ -3,19 +3,15 @@ package com.truckshare.user_service.service;
 import com.truckshare.user_service.dto.RegisterRequestdto;
 import com.truckshare.user_service.dto.RegisterResponsedto;
 import com.truckshare.user_service.entity.User;
-import com.truckshare.user_service.entity.UserRole;
 import com.truckshare.user_service.exception.UserAlreadyExistsException;
+import com.truckshare.user_service.exception.UserNotFoundException;
 import com.truckshare.user_service.mapper.UserMapper;
 import com.truckshare.user_service.repository.UserRepository;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -56,5 +52,10 @@ public class UserService {
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    public User getUserByUserId(String userId) {
+        return userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
     }
 }
