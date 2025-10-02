@@ -4,6 +4,7 @@ import com.truckshare.truck_service.dto.TruckRequestDTO;
 import com.truckshare.truck_service.dto.TruckResponseDTO;
 import com.truckshare.truck_service.exception.TruckNotFoundException;
 import com.truckshare.truck_service.exception.InsufficientCapacityException;
+import com.truckshare.truck_service.exception.InvalidTruckStatusException;
 import com.truckshare.truck_service.mapper.TruckMapper;
 import com.truckshare.truck_service.models.Truck;
 import com.truckshare.truck_service.models.TruckStatus;
@@ -90,7 +91,15 @@ public class TruckService {
         return TruckMapper.toDto(truckRepository.save(existingTruck));
     }
 
+   
+
     public TruckResponseDTO updateStatus(UUID id, String status) {
+        if (!truckRepository.existsById(id)) {
+            throw new TruckNotFoundException("Truck not found with id: " + id);
+        }
+        if (!status.equals("AVAILABLE") && !status.equals("IN_TRANSIT") && !status.equals("FULL") && !status.equals("UNAVAILABLE")) {
+            throw new InvalidTruckStatusException("Invalid status: " + status);
+        }
         return truckRepository.findById(id)
                 .map(existingTruck -> {
                     existingTruck.setStatus(TruckStatus.valueOf(status));
