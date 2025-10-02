@@ -13,7 +13,7 @@ Lower shipping cost and waste by matching available truck space with shipment ne
 - **Microservices**: Spring Boot applications with service discovery
 - **Database**: PostgreSQL
 - **Communication**: OpenFeign for inter-service communication
-- **Gateway**: API Gateway for routing requests
+- **Gateway**: API Gateway for routing requests and Centralized Auth
 
 ## Services
 
