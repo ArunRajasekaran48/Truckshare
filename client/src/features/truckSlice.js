@@ -21,6 +21,11 @@ export const deleteTruck = createAsyncThunk('truck/deleteTruck', async (id) => {
   return id;
 });
 
+export const fetchTruckById = createAsyncThunk('truck/fetchTruckById', async (id) => {
+  const response = await truckService.getTruckById(id);
+  return response.data;
+});
+
 export const fetchTrucksByOwner = createAsyncThunk('truck/fetchTrucksByOwner', async () => {
   const response = await truckService.getTrucksByOwner();
   return response.data;
@@ -31,6 +36,7 @@ const truckSlice = createSlice({
   initialState: {
     trucks: [],
     ownerTrucks: [],
+    currentTruck: null,
     loading: false,
     error: null,
   },
@@ -82,6 +88,17 @@ const truckSlice = createSlice({
         state.ownerTrucks = state.ownerTrucks.filter(truck => truck.id !== action.payload);
       })
       .addCase(deleteTruck.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(fetchTruckById.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchTruckById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentTruck = action.payload;
+      })
+      .addCase(fetchTruckById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

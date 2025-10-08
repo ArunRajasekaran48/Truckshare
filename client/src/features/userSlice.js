@@ -44,6 +44,12 @@ const userSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         state.token = action.payload.token;
+        // Decode JWT to get user info
+        const payload = JSON.parse(atob(action.payload.token.split('.')[1]));
+        state.currentUser = {
+          userId: payload.sub,
+          role: payload.roles && payload.roles.length > 0 ? payload.roles[0] : null,
+        };
         localStorage.setItem('token', action.payload.token);
       })
       .addCase(login.rejected, (state, action) => {

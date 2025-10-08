@@ -4,12 +4,20 @@ const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
-// Request interceptor to add JWT token
+// Request interceptor to add JWT token and user headers
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      // Decode JWT to get user info
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        config.headers.UserId = payload.sub;
+        config.headers.UserRole = payload.roles && payload.roles.length > 0 ? payload.roles[0] : '';
+      } catch (error) {
+        console.error('Error decoding token:', error);
+      }
     }
     return config;
   },

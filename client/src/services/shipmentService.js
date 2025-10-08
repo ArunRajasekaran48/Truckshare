@@ -22,6 +22,10 @@ export const updateAllocation = (shipmentId, allocatedWeight, allocatedVolume) =
   });
 };
 
+export const getShipmentsByUser = () => {
+  return axiosInstance.get('/shipments');
+};
+
 export const isSplittable = (shipmentId) => {
   return axiosInstance.get(`/shipments/${shipmentId}/splittable`);
 };

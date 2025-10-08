@@ -11,6 +11,11 @@ export const updateShipment = createAsyncThunk('shipment/updateShipment', async 
   return response.data;
 });
 
+export const getShipmentsByUser = createAsyncThunk('shipment/getShipmentsByUser', async () => {
+  const response = await shipmentService.getShipmentsByUser();
+  return response.data;
+});
+
 export const getShipmentById = createAsyncThunk('shipment/getShipmentById', async (id) => {
   const response = await shipmentService.getShipmentById(id);
   return response.data;
@@ -57,6 +62,17 @@ const shipmentSlice = createSlice({
         }
       })
       .addCase(updateShipment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(getShipmentsByUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getShipmentsByUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.shipments = action.payload;
+      })
+      .addCase(getShipmentsByUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

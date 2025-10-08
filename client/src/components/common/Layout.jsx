@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '../features/userSlice';
+import { logout } from '../../features/userSlice';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Layout = ({ children }) => {
@@ -18,6 +18,26 @@ const Layout = ({ children }) => {
         <div className="container mx-auto flex justify-between items-center">
           <Link to="/" className="text-xl font-bold">TruckShare</Link>
           <div className="flex items-center space-x-4">
+            {token && currentUser?.role === 'TRUCK_OWNER' && (
+              <>
+                <Link to="/add-truck" className="bg-green-500 px-4 py-2 rounded hover:bg-green-700">
+                  Add Truck
+                </Link>
+                <Link to="/truck-owner" className="bg-yellow-500 px-4 py-2 rounded hover:bg-yellow-700">
+                  My Trucks
+                </Link>
+              </>
+            )}
+            {token && currentUser?.role === 'BUSINESS_USER' && (
+              <>
+                <Link to="/create-shipment" className="bg-green-500 px-4 py-2 rounded hover:bg-green-700">
+                  Create Shipment
+                </Link>
+                <Link to="/business-user" className="bg-yellow-500 px-4 py-2 rounded hover:bg-yellow-700">
+                  My Shipments
+                </Link>
+              </>
+            )}
             {token ? (
               <>
                 <span>Welcome, {currentUser?.userId}</span>
