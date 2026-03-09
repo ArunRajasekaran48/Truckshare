@@ -9,6 +9,9 @@ import com.truckshare.shipment_service.exception.ShipmentAlreadyBookedException;
 import com.truckshare.shipment_service.exception.ShipmentNotFoundException;
 import com.truckshare.shipment_service.mapper.ShipmentMapper;
 import com.truckshare.shipment_service.repository.ShipmentRepository;
+import com.truckshare.shipment_service.config.RabbitMQConfig;
+import com.truckshare.shipment_service.dto.ShipmentCreatedEvent;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,10 +24,23 @@ import org.springframework.stereotype.Service;
 public class ShipmentService {
 
     private final ShipmentRepository shipmentRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     public ShipmentResponseDto createShipment(ShipmentRequestDto dto) {
        Shipment shipment = ShipmentMapper.toEntity(dto);
-       return ShipmentMapper.toDto(shipmentRepository.save(shipment));
+       Shipment savedShipment = shipmentRepository.save(shipment);
+       
+       ShipmentCreatedEvent event = new ShipmentCreatedEvent(
+           savedShipment.getId(),
+           savedShipment.getFromLocation(),
+           savedShipment.getToLocation(),
+           savedShipment.getRequiredWeight(),
+           savedShipment.getRequiredVolume(),
+           savedShipment.getIsSplit()
+       );
+       rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ROUTING_KEY_SHIPMENT_CREATED, event);
+       
+       return ShipmentMapper.toDto(savedShipment);
     }
 
     public ShipmentResponseDto getShipmentById(UUID id) {

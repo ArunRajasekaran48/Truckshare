@@ -17,19 +17,4 @@ public interface TruckClient {
     @GetMapping("/trucks/{truckId}/owner")
     String getTruckOwnerId(@PathVariable("truckId") UUID truckId);
 
-    @PutMapping("/trucks/update-capacity/{truckId}")
-    TruckResponsedto updateCapacity(
-            @PathVariable("truckId") UUID truckId,
-            @RequestParam("bookedWeight") Double bookedWeight,
-            @RequestParam("bookedVolume") Double bookedVolume,
-            @RequestHeader("UserId") String ownerId,
-            @RequestHeader("UserRole") String role);
-
-    @PutMapping("/trucks/{id}/update-status")
-    void updateStatus(
-            @PathVariable("id") UUID id,
-            @RequestParam("status") String status,
-            @RequestHeader("UserId") String ownerId,
-            @RequestHeader("UserRole") String role);
-
 }

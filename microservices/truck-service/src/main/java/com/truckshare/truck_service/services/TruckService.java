@@ -9,6 +9,9 @@ import com.truckshare.truck_service.mapper.TruckMapper;
 import com.truckshare.truck_service.models.Truck;
 import com.truckshare.truck_service.models.TruckStatus;
 import com.truckshare.truck_service.repository.TruckRepository;
+import com.truckshare.truck_service.config.RabbitMQConfig;
+import com.truckshare.truck_service.dto.TruckCapacityUpdatedEvent;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import lombok.AllArgsConstructor;
 
@@ -22,6 +25,7 @@ import java.util.UUID;
 public class TruckService {
 
     private final TruckRepository truckRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     public TruckResponseDTO createTruck(TruckRequestDTO truckRequestDTO) {
         Truck truck = TruckMapper.toEntity(truckRequestDTO);
@@ -60,7 +64,10 @@ public class TruckService {
     existingTruck.setAvailableWeight(truckRequestDTO.getAvailableWeight());
     existingTruck.setAvailableVolume(truckRequestDTO.getAvailableVolume());
     existingTruck.setStatus(TruckStatus.valueOf(truckRequestDTO.getStatus()));
-    return TruckMapper.toDto(truckRepository.save(existingTruck));
+    
+    Truck savedTruck = truckRepository.save(existingTruck);
+    publishCapacityUpdate(savedTruck);
+    return TruckMapper.toDto(savedTruck);
     }
 
     public void deleteTruck(UUID id) {
@@ -88,7 +95,10 @@ public class TruckService {
         }
         existingTruck.setAvailableWeight(existingTruck.getAvailableWeight() - bookedWeight);
         existingTruck.setAvailableVolume(existingTruck.getAvailableVolume() - bookedVolume);
-        return TruckMapper.toDto(truckRepository.save(existingTruck));
+        
+        Truck savedTruck = truckRepository.save(existingTruck);
+        publishCapacityUpdate(savedTruck);
+        return TruckMapper.toDto(savedTruck);
     }
 
    
@@ -103,7 +113,9 @@ public class TruckService {
         return truckRepository.findById(id)
                 .map(existingTruck -> {
                     existingTruck.setStatus(TruckStatus.valueOf(status));
-                    return TruckMapper.toDto(truckRepository.save(existingTruck));
+                    Truck savedTruck = truckRepository.save(existingTruck);
+                    publishCapacityUpdate(savedTruck);
+                    return TruckMapper.toDto(savedTruck);
                 })
                 .orElse(null);
     }
@@ -113,5 +125,15 @@ public class TruckService {
         return trucks.stream()
                 .map(TruckMapper::toDto)
                 .toList();
+    }
+    
+    private void publishCapacityUpdate(Truck truck) {
+        TruckCapacityUpdatedEvent event = new TruckCapacityUpdatedEvent(
+            truck.getId(),
+            truck.getAvailableWeight(),
+            truck.getAvailableVolume(),
+            truck.getStatus().name()
+        );
+        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ROUTING_KEY_TRUCK_CAPACITY_UPDATED, event);
     }
 }

@@ -14,6 +14,10 @@ import com.truckshare.booking_service.exception.ShipmentAlreadyBookedException;
 import com.truckshare.booking_service.exception.ShipmentOwnershipException;
 import com.truckshare.booking_service.mapper.BookingMapper;
 import com.truckshare.booking_service.repository.BookingRepository;
+import com.truckshare.booking_service.config.RabbitMQConfig;
+import com.truckshare.booking_service.dto.BookingCreatedEvent;
+import com.truckshare.booking_service.dto.BookingConfirmedEvent;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -30,6 +34,7 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final ShipmentClient shipmentClient;
     private final TruckClient truckClient;
+    private final RabbitTemplate rabbitTemplate;
 
     public ShipmentTruckResponse createBooking(CreateBookingRequest request) {
         ShipmentResponseDto shipment = shipmentClient.getShipmentById(request.getShipmentId());
@@ -41,6 +46,17 @@ public class BookingService {
         booking.setCreatedAt(Instant.now());
         booking.setPaymentConfirmed(false);
         ShipmentTruck saved = bookingRepository.save(booking);
+
+        BookingCreatedEvent event = new BookingCreatedEvent(
+                saved.getId(),
+                saved.getShipmentId(),
+                saved.getTruckId(),
+                saved.getAllocatedWeight(),
+                saved.getAllocatedVolume(),
+                request.getBusinessUserId()
+        );
+        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ROUTING_KEY_BOOKING_PROPOSED, event);
+
         return BookingMapper.toResponse(saved);
     }
 
@@ -111,17 +127,19 @@ public class BookingService {
             throw new BookingAlreadyPaidException("Payment is already acknowledged for booking: " + bookingId);
         }
 
-        // Call shipment service to finalize allocation and set shipment to BOOKED
-        shipmentClient.updateAllocation(booking.getShipmentId(), booking.getAllocatedWeight(),
-                booking.getAllocatedVolume());
-        // Call truck service to update truck available capacity
-        TruckResponsedto updatedTruck = truckClient.updateCapacity(booking.getTruckId(), booking.getAllocatedWeight(),
-                booking.getAllocatedVolume(), truckClient.getTruckOwnerId(booking.getTruckId()), "TRUCK_OWNER");
-        // update truck status if fully booked
-        if (updatedTruck.getAvailableWeight() <= 0 || updatedTruck.getAvailableVolume() <= 0) {
-            truckClient.updateStatus(booking.getTruckId(), "FULL",
-                    truckClient.getTruckOwnerId(booking.getTruckId()), "TRUCK_OWNER");
-        }
+        // Publish BookingConfirmedEvent instead of synchronous calls
+        // Note: we still need to load truckOwnerId from truckClient for the event if it's not present in booking
+        String truckOwnerId = truckClient.getTruckOwnerId(booking.getTruckId());
+        
+        BookingConfirmedEvent event = new BookingConfirmedEvent(
+                booking.getId(),
+                booking.getShipmentId(),
+                booking.getTruckId(),
+                booking.getAllocatedWeight(),
+                booking.getAllocatedVolume(),
+                truckOwnerId
+        );
+        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ROUTING_KEY_BOOKING_CONFIRMED, event);
 
         // Mark as paid only after successful remote call
         booking.setPaymentConfirmed(true);

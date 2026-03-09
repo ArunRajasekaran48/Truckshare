@@ -16,11 +16,4 @@ public interface ShipmentClient {
     @GetMapping("/shipments/{shipmentId}")
     ShipmentResponseDto getShipmentById(@PathVariable("shipmentId") UUID shipmentId);
 
-    // Finalize allocation and set shipment to BOOKED
-    @PutMapping("/shipments/{shipmentId}/allocate")
-    void updateAllocation(
-            @PathVariable("shipmentId") UUID shipmentId,
-            @RequestParam("allocatedWeight") Double allocatedWeight,
-            @RequestParam("allocatedVolume") Double allocatedVolume
-    );
 }

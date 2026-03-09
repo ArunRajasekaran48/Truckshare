@@ -1,6 +1,4 @@
 package com.truckshare.user_service.controller;
-
-
 import com.truckshare.user_service.dto.RegisterRequestdto;
 import com.truckshare.user_service.dto.RegisterResponsedto;
 import com.truckshare.user_service.entity.User;
@@ -20,13 +18,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-
 @RestController
 @RequestMapping("/users")
 @AllArgsConstructor
 public class UserController {
-
     private final UserService userService;
     private final AuthenticationManager authManager;
     private final JwtUtil jwtUtil;
@@ -59,5 +54,4 @@ public class UserController {
         User user = userService.getUserByUserId(userId);
         return ResponseEntity.ok(user);
     }
-    
 }
