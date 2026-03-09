@@ -52,6 +52,12 @@ public class MatchingService {
             throw new ShipmentNotFoundException("Shipment not found with id: " + shipmentId);
         }
 
+        // Prevent matching if the shipment is already fully booked or cancelled
+        if (shipmentResponse.getStatus() == ShipmentStatus.BOOKED || 
+            shipmentResponse.getStatus() == ShipmentStatus.CANCELLED) {
+            throw new IllegalArgumentException("Cannot find matches for a shipment that is already " + shipmentResponse.getStatus());
+        }
+
         // Check if the shipment is already partially booked and is split
         if (shipmentResponse.getStatus() == ShipmentStatus.PARTIALLY_BOOKED && shipmentResponse.getIsSplit()) {
             // Calculate remaining capacity needed

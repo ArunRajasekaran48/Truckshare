@@ -1,9 +1,6 @@
 package com.truckshare.booking_service.service;
 
-import com.truckshare.booking_service.dto.CreateBookingRequest;
-import com.truckshare.booking_service.dto.ShipmentResponseDto;
-import com.truckshare.booking_service.dto.ShipmentTruckResponse;
-import com.truckshare.booking_service.dto.TruckResponsedto;
+import com.truckshare.booking_service.dto.*;
 import com.truckshare.booking_service.dto.enums.ShipmentStatus;
 import com.truckshare.booking_service.entity.ShipmentTruck;
 import com.truckshare.booking_service.exception.AllocationExceededException;
@@ -14,11 +11,11 @@ import com.truckshare.booking_service.exception.ShipmentAlreadyBookedException;
 import com.truckshare.booking_service.exception.ShipmentOwnershipException;
 import com.truckshare.booking_service.mapper.BookingMapper;
 import com.truckshare.booking_service.repository.BookingRepository;
-import com.truckshare.booking_service.config.RabbitMQConfig;
-import com.truckshare.booking_service.dto.BookingCreatedEvent;
-import com.truckshare.booking_service.dto.BookingConfirmedEvent;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import com.truckshare.booking_service.entity.OutboxEvent;
+import com.truckshare.booking_service.repository.OutboxEventRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
@@ -29,12 +26,14 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BookingService {
 
     private final BookingRepository bookingRepository;
+    private final OutboxEventRepository outboxEventRepository;
     private final ShipmentClient shipmentClient;
     private final TruckClient truckClient;
-    private final RabbitTemplate rabbitTemplate;
+    private final ObjectMapper objectMapper;
 
     public ShipmentTruckResponse createBooking(CreateBookingRequest request) {
         ShipmentResponseDto shipment = shipmentClient.getShipmentById(request.getShipmentId());
@@ -55,7 +54,20 @@ public class BookingService {
                 saved.getAllocatedVolume(),
                 request.getBusinessUserId()
         );
-        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ROUTING_KEY_BOOKING_PROPOSED, event);
+        
+        try {
+            OutboxEvent outboxEvent = OutboxEvent.builder()
+                .aggregateType("Booking")
+                .aggregateId(saved.getId().toString())
+                .eventType("BookingCreatedEvent")
+                .payload(objectMapper.writeValueAsString(event))
+                .build();
+            outboxEventRepository.save(outboxEvent);
+            log.info("Saved BookingCreatedEvent to outbox for booking id: {}", saved.getId());
+        } catch (Exception e) {
+            log.error("Failed to serialize BookingCreatedEvent", e);
+            throw new RuntimeException("Failed to save event to outbox", e);
+        }
 
         return BookingMapper.toResponse(saved);
     }
@@ -139,9 +151,22 @@ public class BookingService {
                 booking.getAllocatedVolume(),
                 truckOwnerId
         );
-        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ROUTING_KEY_BOOKING_CONFIRMED, event);
+        
+        try {
+            OutboxEvent outboxEvent = OutboxEvent.builder()
+                .aggregateType("Booking")
+                .aggregateId(booking.getId().toString())
+                .eventType("BookingConfirmedEvent")
+                .payload(objectMapper.writeValueAsString(event))
+                .build();
+            outboxEventRepository.save(outboxEvent);
+            log.info("Saved BookingConfirmedEvent to outbox for booking id: {}", booking.getId());
+        } catch (Exception e) {
+            log.error("Failed to serialize BookingConfirmedEvent", e);
+            throw new RuntimeException("Failed to save event to outbox", e);
+        }
 
-        // Mark as paid only after successful remote call
+        // Mark as paid only after saving outbox event
         booking.setPaymentConfirmed(true);
         booking.setPaymentReference(paymentReference);
         booking.setPaymentConfirmedAt(Instant.now());

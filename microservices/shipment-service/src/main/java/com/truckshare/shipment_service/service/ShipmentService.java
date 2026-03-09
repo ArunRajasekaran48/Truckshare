@@ -1,5 +1,6 @@
 package com.truckshare.shipment_service.service;
 
+import com.truckshare.shipment_service.dto.ShipmentCreatedEvent;
 import com.truckshare.shipment_service.dto.ShipmentRequestDto;
 import com.truckshare.shipment_service.dto.ShipmentResponseDto;
 import com.truckshare.shipment_service.entity.Shipment;
@@ -9,11 +10,12 @@ import com.truckshare.shipment_service.exception.ShipmentAlreadyBookedException;
 import com.truckshare.shipment_service.exception.ShipmentNotFoundException;
 import com.truckshare.shipment_service.mapper.ShipmentMapper;
 import com.truckshare.shipment_service.repository.ShipmentRepository;
-import com.truckshare.shipment_service.config.RabbitMQConfig;
-import com.truckshare.shipment_service.dto.ShipmentCreatedEvent;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import com.truckshare.shipment_service.entity.OutboxEvent;
+import com.truckshare.shipment_service.repository.OutboxEventRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.UUID;
 
@@ -21,11 +23,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ShipmentService {
 
     private final ShipmentRepository shipmentRepository;
-    private final RabbitTemplate rabbitTemplate;
+    private final OutboxEventRepository outboxEventRepository;
+    private final ObjectMapper objectMapper;
 
+    @org.springframework.transaction.annotation.Transactional
     public ShipmentResponseDto createShipment(ShipmentRequestDto dto) {
        Shipment shipment = ShipmentMapper.toEntity(dto);
        Shipment savedShipment = shipmentRepository.save(shipment);
@@ -38,7 +43,20 @@ public class ShipmentService {
            savedShipment.getRequiredVolume(),
            savedShipment.getIsSplit()
        );
-       rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ROUTING_KEY_SHIPMENT_CREATED, event);
+       
+       try {
+           OutboxEvent outboxEvent = OutboxEvent.builder()
+               .aggregateType("Shipment")
+               .aggregateId(savedShipment.getId().toString())
+               .eventType("ShipmentCreatedEvent")
+               .payload(objectMapper.writeValueAsString(event))
+               .build();
+           outboxEventRepository.save(outboxEvent);
+           log.info("Saved ShipmentCreatedEvent to outbox for shipment id: {}", savedShipment.getId());
+       } catch (Exception e) {
+           log.error("Failed to serialize ShipmentCreatedEvent", e);
+           throw new RuntimeException("Failed to save event to outbox", e);
+       }
        
        return ShipmentMapper.toDto(savedShipment);
     }

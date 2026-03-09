@@ -1,5 +1,6 @@
 package com.truckshare.truck_service.services;
 
+import com.truckshare.truck_service.dto.TruckCapacityUpdatedEvent;
 import com.truckshare.truck_service.dto.TruckRequestDTO;
 import com.truckshare.truck_service.dto.TruckResponseDTO;
 import com.truckshare.truck_service.exception.TruckNotFoundException;
@@ -9,11 +10,12 @@ import com.truckshare.truck_service.mapper.TruckMapper;
 import com.truckshare.truck_service.models.Truck;
 import com.truckshare.truck_service.models.TruckStatus;
 import com.truckshare.truck_service.repository.TruckRepository;
-import com.truckshare.truck_service.config.RabbitMQConfig;
-import com.truckshare.truck_service.dto.TruckCapacityUpdatedEvent;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import com.truckshare.truck_service.models.OutboxEvent;
+import com.truckshare.truck_service.repository.OutboxEventRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 
@@ -22,10 +24,12 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class TruckService {
 
     private final TruckRepository truckRepository;
-    private final RabbitTemplate rabbitTemplate;
+    private final OutboxEventRepository outboxEventRepository;
+    private final ObjectMapper objectMapper;
 
     public TruckResponseDTO createTruck(TruckRequestDTO truckRequestDTO) {
         Truck truck = TruckMapper.toEntity(truckRequestDTO);
@@ -134,6 +138,19 @@ public class TruckService {
             truck.getAvailableVolume(),
             truck.getStatus().name()
         );
-        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, RabbitMQConfig.ROUTING_KEY_TRUCK_CAPACITY_UPDATED, event);
+        
+        try {
+            OutboxEvent outboxEvent = OutboxEvent.builder()
+                .aggregateType("Truck")
+                .aggregateId(truck.getId().toString())
+                .eventType("TruckCapacityUpdatedEvent")
+                .payload(objectMapper.writeValueAsString(event))
+                .build();
+            outboxEventRepository.save(outboxEvent);
+            log.info("Saved TruckCapacityUpdatedEvent to outbox for truck id: {}", truck.getId());
+        } catch (Exception e) {
+            log.error("Failed to serialize TruckCapacityUpdatedEvent", e);
+            throw new RuntimeException("Failed to save event to outbox", e);
+        }
     }
 }
