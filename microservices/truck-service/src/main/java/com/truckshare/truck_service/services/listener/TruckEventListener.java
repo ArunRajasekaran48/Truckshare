@@ -1,6 +1,7 @@
 package com.truckshare.truck_service.services.listener;
 
 import com.truckshare.truck_service.config.RabbitMQConfig;
+import com.truckshare.truck_service.dto.BookingCancelledEvent;
 import com.truckshare.truck_service.dto.BookingConfirmedEvent;
 import com.truckshare.truck_service.dto.BookingCreatedEvent;
 import com.truckshare.truck_service.services.TruckService;
@@ -19,33 +20,39 @@ public class TruckEventListener {
 
     private final TruckService truckService;
 
-    @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "truck.booking.created.queue", durable = "true"),
-            exchange = @Exchange(value = RabbitMQConfig.EXCHANGE_NAME, type = "topic"),
-            key = "booking.proposed"
-    ))
+    /**
+     * When a booking is PROPOSED, we immediately reserve (deduct) truck capacity.
+     * This prevents overbooking between proposal and payment confirmation.
+     */
+    @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "truck.booking.created.queue", durable = "true"), exchange = @Exchange(value = RabbitMQConfig.EXCHANGE_NAME, type = "topic"), key = "booking.proposed"))
     public void handleBookingCreatedEvent(BookingCreatedEvent event) {
-        log.info("Received BookingCreatedEvent (proposed) for truck id: {}. Re-evaluating capacity...", event.truckId());
-        // Depending on business logic, we could 'reserve' capacity here instead of deducting it fully.
-        // For now, we will wait for BookingConfirmedEvent to actually deduct the capacity to avoid inconsistencies.
+        log.info(
+                "BookingProposed Event Received: Booking {} for truck id: {}. Capacity was already reserved synchronously.",
+                event.bookingId(), event.truckId());
+        // No action needed here as capacity is reserved synchronously in BookingService
     }
 
-    @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "truck.booking.confirmed.queue", durable = "true"),
-            exchange = @Exchange(value = RabbitMQConfig.EXCHANGE_NAME, type = "topic"),
-            key = "booking.confirmed"
-    ))
+    /**
+     * When booking is CONFIRMED (payment acknowledged), the capacity is already
+     * reserved.
+     * No further deduction needed.
+     */
+    @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "truck.booking.confirmed.queue", durable = "true"), exchange = @Exchange(value = RabbitMQConfig.EXCHANGE_NAME, type = "topic"), key = "booking.confirmed"))
     public void handleBookingConfirmedEvent(BookingConfirmedEvent event) {
-        log.info("Received BookingConfirmedEvent for truck id: {}. Deducting {} weight and {} volume.", 
-            event.truckId(), event.allocatedWeight(), event.allocatedVolume());
-        try {
-            var updatedTruck = truckService.updateCapacity(event.truckId(), event.allocatedWeight(), event.allocatedVolume());
-            // Update status if fully booked
-            if (updatedTruck.getAvailableWeight() <= 0 || updatedTruck.getAvailableVolume() <= 0) {
-                truckService.updateStatus(event.truckId(), "FULL");
-            }
-        } catch (Exception e) {
-            log.warn("Failed to update capacity for truck id: {} - {}", event.truckId(), e.getMessage());
-        }
+        log.info(
+                "BookingConfirmed Event Received: Booking {} for truck {} is now fully confirmed. Capacity remains reserved.",
+                event.bookingId(), event.truckId());
+    }
+
+    /**
+     * When a booking is CANCELLED, capacity is restored synchronously by
+     * BookingService.
+     * We just log the event for auditing/debugging here.
+     */
+    @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "truck.booking.cancelled.queue", durable = "true"), exchange = @Exchange(value = RabbitMQConfig.EXCHANGE_NAME, type = "topic"), key = "booking.cancelled"))
+    public void handleBookingCancelledEvent(BookingCancelledEvent event) {
+        log.info(
+                "BookingCancelled Event Received: Booking {} for truck id: {}. Capacity was already restored synchronously.",
+                event.bookingId(), event.truckId());
     }
 }

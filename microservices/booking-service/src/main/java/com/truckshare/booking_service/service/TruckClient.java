@@ -17,4 +17,15 @@ public interface TruckClient {
     @GetMapping("/trucks/{truckId}/owner")
     String getTruckOwnerId(@PathVariable("truckId") UUID truckId);
 
+    @PutMapping("/trucks/internal/reserve-capacity/{id}")
+    void reserveCapacity(
+            @PathVariable("id") UUID id,
+            @RequestParam("weight") double weight,
+            @RequestParam("volume") double volume);
+
+    @PutMapping("/trucks/internal/restore-capacity/{id}")
+    void restoreCapacity(
+            @PathVariable("id") UUID id,
+            @RequestParam("weight") double weight,
+            @RequestParam("volume") double volume);
 }

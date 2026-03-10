@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -35,6 +36,7 @@ public class BookingService {
     private final TruckClient truckClient;
     private final ObjectMapper objectMapper;
 
+    @Transactional
     public ShipmentTruckResponse createBooking(CreateBookingRequest request) {
         ShipmentResponseDto shipment = shipmentClient.getShipmentById(request.getShipmentId());
         validateShipmentOwnership(request, shipment);
@@ -44,6 +46,10 @@ public class BookingService {
         ShipmentTruck booking = BookingMapper.toEntity(request);
         booking.setCreatedAt(Instant.now());
         booking.setPaymentConfirmed(false);
+
+        // Synchronously reserve capacity in truck-service
+        truckClient.reserveCapacity(request.getTruckId(), request.getAllocatedWeight(), request.getAllocatedVolume());
+
         ShipmentTruck saved = bookingRepository.save(booking);
 
         BookingCreatedEvent event = new BookingCreatedEvent(
@@ -52,16 +58,15 @@ public class BookingService {
                 saved.getTruckId(),
                 saved.getAllocatedWeight(),
                 saved.getAllocatedVolume(),
-                request.getBusinessUserId()
-        );
-        
+                request.getBusinessUserId());
+
         try {
             OutboxEvent outboxEvent = OutboxEvent.builder()
-                .aggregateType("Booking")
-                .aggregateId(saved.getId().toString())
-                .eventType("BookingCreatedEvent")
-                .payload(objectMapper.writeValueAsString(event))
-                .build();
+                    .aggregateType("Booking")
+                    .aggregateId(saved.getId().toString())
+                    .eventType("BookingCreatedEvent")
+                    .payload(objectMapper.writeValueAsString(event))
+                    .build();
             outboxEventRepository.save(outboxEvent);
             log.info("Saved BookingCreatedEvent to outbox for booking id: {}", saved.getId());
         } catch (Exception e) {
@@ -140,25 +145,25 @@ public class BookingService {
         }
 
         // Publish BookingConfirmedEvent instead of synchronous calls
-        // Note: we still need to load truckOwnerId from truckClient for the event if it's not present in booking
+        // Note: we still need to load truckOwnerId from truckClient for the event if
+        // it's not present in booking
         String truckOwnerId = truckClient.getTruckOwnerId(booking.getTruckId());
-        
+
         BookingConfirmedEvent event = new BookingConfirmedEvent(
                 booking.getId(),
                 booking.getShipmentId(),
                 booking.getTruckId(),
                 booking.getAllocatedWeight(),
                 booking.getAllocatedVolume(),
-                truckOwnerId
-        );
-        
+                truckOwnerId);
+
         try {
             OutboxEvent outboxEvent = OutboxEvent.builder()
-                .aggregateType("Booking")
-                .aggregateId(booking.getId().toString())
-                .eventType("BookingConfirmedEvent")
-                .payload(objectMapper.writeValueAsString(event))
-                .build();
+                    .aggregateType("Booking")
+                    .aggregateId(booking.getId().toString())
+                    .eventType("BookingConfirmedEvent")
+                    .payload(objectMapper.writeValueAsString(event))
+                    .build();
             outboxEventRepository.save(outboxEvent);
             log.info("Saved BookingConfirmedEvent to outbox for booking id: {}", booking.getId());
         } catch (Exception e) {
@@ -173,6 +178,47 @@ public class BookingService {
 
         ShipmentTruck updated = bookingRepository.save(booking);
         return BookingMapper.toResponse(updated);
+    }
+
+    /**
+     * Cancels a booking that has not yet been payment-confirmed.
+     * Publishes BookingCancelledEvent so truck-service restores reserved capacity.
+     */
+    @Transactional
+    public ShipmentTruckResponse cancelBooking(UUID bookingId) {
+        ShipmentTruck booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new BookingNotFoundException("Booking not found: " + bookingId));
+
+        if (Boolean.TRUE.equals(booking.getPaymentConfirmed())) {
+            throw new BookingAlreadyPaidException("Cannot cancel a payment-confirmed booking: " + bookingId);
+        }
+
+        BookingCancelledEvent event = new BookingCancelledEvent(
+                booking.getId(),
+                booking.getShipmentId(),
+                booking.getTruckId(),
+                booking.getAllocatedWeight(),
+                booking.getAllocatedVolume());
+
+        try {
+            OutboxEvent outboxEvent = OutboxEvent.builder()
+                    .aggregateType("Booking")
+                    .aggregateId(booking.getId().toString())
+                    .eventType("BookingCancelledEvent")
+                    .payload(objectMapper.writeValueAsString(event))
+                    .build();
+            outboxEventRepository.save(outboxEvent);
+            log.info("Saved BookingCancelledEvent to outbox for booking id: {}", bookingId);
+        } catch (Exception e) {
+            log.error("Failed to serialize BookingCancelledEvent", e);
+            throw new RuntimeException("Failed to save cancel event to outbox", e);
+        }
+
+        // Synchronously restore capacity in truck-service
+        truckClient.restoreCapacity(booking.getTruckId(), booking.getAllocatedWeight(), booking.getAllocatedVolume());
+
+        bookingRepository.delete(booking);
+        return BookingMapper.toResponse(booking);
     }
 
     public List<ShipmentTruckResponse> getAllBookings() {

@@ -161,4 +161,26 @@ public class TruckController {
     String getTruckOwnerId(@PathVariable("truckId") UUID truckId) {
         return truckService.getTruckById(truckId).getOwnerId();
     }
+
+    // --- Internal Sync Endpoints for Booking Service ---
+
+    @PutMapping("/internal/reserve-capacity/{id}")
+    public ResponseEntity<TruckResponseDTO> reserveCapacityInternal(
+            @PathVariable UUID id,
+            @RequestParam double weight,
+            @RequestParam double volume) {
+        // Internal call, skip owner check
+        TruckResponseDTO updated = truckService.updateCapacity(id, weight, volume);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PutMapping("/internal/restore-capacity/{id}")
+    public ResponseEntity<TruckResponseDTO> restoreCapacityInternal(
+            @PathVariable UUID id,
+            @RequestParam double weight,
+            @RequestParam double volume) {
+        // Internal call, skip owner check
+        TruckResponseDTO updated = truckService.restoreCapacity(id, weight, volume);
+        return ResponseEntity.ok(updated);
+    }
 }

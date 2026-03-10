@@ -28,15 +28,16 @@ public class OutboxPublisherService {
         for (OutboxEvent event : pendingEvents) {
             try {
                 String routingKey = determineRoutingKey(event.getEventType());
-                
+
                 if (routingKey != null) {
                     Object payloadObject = deserializePayload(event.getEventType(), event.getPayload());
-                    
+
                     if (payloadObject != null) {
                         rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, routingKey, payloadObject);
                         event.setProcessed(true);
                         outboxEventRepository.save(event);
-                        log.info("Successfully published outbox event {} for aggregate {}", event.getEventType(), event.getAggregateId());
+                        log.info("Successfully published outbox event {} for aggregate {}", event.getEventType(),
+                                event.getAggregateId());
                     } else {
                         log.warn("Failed to deserialize payload for event type: {}", event.getEventType());
                     }
@@ -45,7 +46,8 @@ public class OutboxPublisherService {
                 }
 
             } catch (Exception e) {
-                log.error("Failed to publish outbox event {} for aggregate {}", event.getEventType(), event.getAggregateId(), e);
+                log.error("Failed to publish outbox event {} for aggregate {}", event.getEventType(),
+                        event.getAggregateId(), e);
                 // Stop to maintain ordering. Retry next cycle.
                 break;
             }
@@ -57,6 +59,8 @@ public class OutboxPublisherService {
             return RabbitMQConfig.ROUTING_KEY_BOOKING_PROPOSED;
         } else if ("BookingConfirmedEvent".equals(eventType)) {
             return RabbitMQConfig.ROUTING_KEY_BOOKING_CONFIRMED;
+        } else if ("BookingCancelledEvent".equals(eventType)) {
+            return RabbitMQConfig.ROUTING_KEY_BOOKING_CANCELLED;
         }
         return null;
     }
@@ -67,6 +71,8 @@ public class OutboxPublisherService {
             return mapper.readValue(payload, com.truckshare.booking_service.dto.BookingCreatedEvent.class);
         } else if ("BookingConfirmedEvent".equals(eventType)) {
             return mapper.readValue(payload, com.truckshare.booking_service.dto.BookingConfirmedEvent.class);
+        } else if ("BookingCancelledEvent".equals(eventType)) {
+            return mapper.readValue(payload, com.truckshare.booking_service.dto.BookingCancelledEvent.class);
         }
         return null;
     }

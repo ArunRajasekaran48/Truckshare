@@ -8,7 +8,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.Instant;
 
-
 @Entity
 @Table(name = "trucks")
 @Getter
@@ -23,6 +22,9 @@ public class Truck {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+
+    @Version
+    private Long version;
 
     @Column(nullable = false)
     private String ownerId;
@@ -44,11 +46,12 @@ public class Truck {
     private Double availableWeight;
     private Double availableVolume;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private TruckStatus status = TruckStatus.AVAILABLE;
 
     @CreationTimestamp
-    private Instant createdAt ;
+    private Instant createdAt;
     @UpdateTimestamp
-    private Instant updatedAt ;
+    private Instant updatedAt;
 }

@@ -14,6 +14,7 @@ public class RabbitMQConfig {
     // Routing keys related to this service
     public static final String ROUTING_KEY_BOOKING_PROPOSED = "booking.proposed";
     public static final String ROUTING_KEY_BOOKING_CONFIRMED = "booking.confirmed";
+    public static final String ROUTING_KEY_BOOKING_CANCELLED = "booking.cancelled";
 
     @Bean
     public TopicExchange exchange() {

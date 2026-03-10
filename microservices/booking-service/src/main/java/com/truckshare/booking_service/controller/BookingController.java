@@ -22,12 +22,13 @@ public class BookingController {
 
     private final BookingService bookingService;
     private final TruckClient truckClient;
+
     @PostMapping
     public ResponseEntity<ShipmentTruckResponse> bookTruck(
-        @RequestHeader("UserId") String businessUserId,
-        @RequestHeader("UserRole") String role,
-        @RequestBody CreateBookingRequest request) {
-        //only Business User can create booking 
+            @RequestHeader("UserId") String businessUserId,
+            @RequestHeader("UserRole") String role,
+            @RequestBody CreateBookingRequest request) {
+        // only Business User can create booking
         if (!"BUSINESS_USER".equals(role)) {
             throw new UnauthorizedRoleException("Only business users can create bookings");
         }
@@ -46,13 +47,14 @@ public class BookingController {
         if (!"TRUCK_OWNER".equals(role)) {
             throw new UnauthorizedRoleException("Only truck owners can acknowledge payment");
         }
-        //   To do: Validate if the booking belongs to the truck owner
-         if(!truckOwnerId.equals(truckClient.getTruckOwnerId(bookingService.getBookingById(bookingId).getTruckId()))) {
-             throw new ShipmentOwnershipException("This booking does not belong to the truck owner");
-         }
+        // To do: Validate if the booking belongs to the truck owner
+        if (!truckOwnerId.equals(truckClient.getTruckOwnerId(bookingService.getBookingById(bookingId).getTruckId()))) {
+            throw new ShipmentOwnershipException("This booking does not belong to the truck owner");
+        }
         ShipmentTruckResponse updated = bookingService.acknowledgePayment(bookingId, paymentReference);
         return ResponseEntity.ok(updated);
     }
+
     @GetMapping("/all")
     public ResponseEntity<List<ShipmentTruckResponse>> getAllBookings() {
         return ResponseEntity.ok(bookingService.getAllBookings());
@@ -62,5 +64,16 @@ public class BookingController {
     public ResponseEntity<ShipmentTruckResponse> getBookingById(@PathVariable UUID bookingId) {
         ShipmentTruckResponse booking = bookingService.getBookingById(bookingId);
         return ResponseEntity.ok(booking);
+    }
+
+    @DeleteMapping("/{bookingId}")
+    public ResponseEntity<ShipmentTruckResponse> cancelBooking(
+            @RequestHeader("UserId") String userId,
+            @RequestHeader("UserRole") String role,
+            @PathVariable UUID bookingId) {
+        if (!"BUSINESS_USER".equals(role)) {
+            throw new UnauthorizedRoleException("Only business users can cancel bookings");
+        }
+        return ResponseEntity.ok(bookingService.cancelBooking(bookingId));
     }
 }
