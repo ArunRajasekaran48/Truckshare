@@ -221,6 +221,51 @@ public class BookingService {
         return BookingMapper.toResponse(booking);
     }
 
+    /**
+     * Automatically expires an unpaid booking.
+     * Restores capacity synchronously and notifies other services via Outbox.
+     */
+    @Transactional
+    public void expireBooking(ShipmentTruck booking) {
+        log.info("Auto-expiring unpaid booking: {}", booking.getId());
+
+        try {
+            // 1. Notify other services that this booking is cancelled due to expiration
+            BookingCancelledEvent event = new BookingCancelledEvent(
+                    booking.getShipmentId(),
+                    booking.getTruckId(),
+                    booking.getId(),
+                    booking.getAllocatedWeight(),
+                    booking.getAllocatedVolume());
+
+            OutboxEvent outboxEvent = OutboxEvent.builder()
+                    .aggregateType("Booking")
+                    .aggregateId(booking.getId().toString())
+                    .eventType("BookingCancelledEvent")
+                    .payload(objectMapper.writeValueAsString(event))
+                    .build();
+
+            outboxEventRepository.save(outboxEvent);
+        } catch (Exception e) {
+            log.error("Failed to save auto-expiry cancel event to outbox for booking: {}", booking.getId(), e);
+            // We continue even if outbox fails, capacity restoration is higher priority
+        }
+
+        // 2. Synchronously restore capacity in truck-service
+        try {
+            truckClient.restoreCapacity(booking.getTruckId(), booking.getAllocatedWeight(),
+                    booking.getAllocatedVolume());
+        } catch (Exception e) {
+            log.error("Failed to restore capacity synchronously during auto-expiry for booking: {}", booking.getId(),
+                    e);
+            // This is critical, but we delete the booking anyway to prevent re-processing
+        }
+
+        // 3. Delete the zombie booking
+        bookingRepository.delete(booking);
+        log.info("Successfully expired zombie booking: {}", booking.getId());
+    }
+
     public List<ShipmentTruckResponse> getAllBookings() {
         List<ShipmentTruck> bookings = bookingRepository.findAll();
         return bookings.stream()

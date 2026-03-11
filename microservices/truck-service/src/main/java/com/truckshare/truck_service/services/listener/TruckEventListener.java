@@ -4,7 +4,6 @@ import com.truckshare.truck_service.config.RabbitMQConfig;
 import com.truckshare.truck_service.dto.BookingCancelledEvent;
 import com.truckshare.truck_service.dto.BookingConfirmedEvent;
 import com.truckshare.truck_service.dto.BookingCreatedEvent;
-import com.truckshare.truck_service.services.TruckService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.Exchange;
@@ -17,8 +16,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class TruckEventListener {
-
-    private final TruckService truckService;
 
     /**
      * When a booking is PROPOSED, we immediately reserve (deduct) truck capacity.

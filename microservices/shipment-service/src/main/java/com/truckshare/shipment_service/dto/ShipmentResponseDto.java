@@ -24,4 +24,11 @@ public class ShipmentResponseDto {
     private Double allocatedVolume;
     private Boolean isSplit;
     private ShipmentStatus status;
+
+    private Double fromLat;
+    private Double fromLon;
+    private Double toLat;
+    private Double toLon;
+    private Double distanceKm;
+    private Double estimatedPrice;
 }

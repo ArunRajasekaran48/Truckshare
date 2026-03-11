@@ -1,6 +1,5 @@
 package com.truckshare.shipment_service.entity;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,20 +36,27 @@ public class Shipment {
     @Column(nullable = false)
     private Double requiredVolume;
 
-//    @Column(nullable = false)
+    // @Column(nullable = false)
     @Builder.Default
     @ColumnDefault("0")
     private Double allocatedWeight = 0d;
 
-//    @Column(nullable = false)
+    // @Column(nullable = false)
     @Builder.Default
     @ColumnDefault("0")
     private Double allocatedVolume = 0d;
 
-
     @Column(nullable = false)
     private Boolean isSplit;
 
+    private Double fromLat;
+    private Double fromLon;
+    private Double toLat;
+    private Double toLon;
+    private Double distanceKm;
+    private Double estimatedPrice;
+
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private ShipmentStatus status = ShipmentStatus.PENDING;
 

@@ -7,8 +7,8 @@ import lombok.Data;
 
 @Data
 public class ShipmentMapper {
-   public static Shipment toEntity(ShipmentRequestDto dto) {
-        if(dto == null) {
+    public static Shipment toEntity(ShipmentRequestDto dto) {
+        if (dto == null) {
             return null;
         }
         return Shipment.builder()
@@ -20,10 +20,10 @@ public class ShipmentMapper {
                 .isSplit(dto.getIsSplit())
                 .status(dto.getStatus())
                 .build();
-   }
+    }
 
     public static ShipmentResponseDto toDto(Shipment shipment) {
-        if(shipment == null) {
+        if (shipment == null) {
             return null;
         }
         return ShipmentResponseDto.builder()
@@ -37,6 +37,12 @@ public class ShipmentMapper {
                 .allocatedVolume(shipment.getAllocatedVolume())
                 .isSplit(shipment.getIsSplit())
                 .status(shipment.getStatus())
+                .fromLat(shipment.getFromLat())
+                .fromLon(shipment.getFromLon())
+                .toLat(shipment.getToLat())
+                .toLon(shipment.getToLon())
+                .distanceKm(shipment.getDistanceKm())
+                .estimatedPrice(shipment.getEstimatedPrice())
                 .build();
     }
 }
