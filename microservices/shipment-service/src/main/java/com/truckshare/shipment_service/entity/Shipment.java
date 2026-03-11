@@ -49,14 +49,6 @@ public class Shipment {
     @Column(nullable = false)
     private Boolean isSplit;
 
-    private Double fromLat;
-    private Double fromLon;
-    private Double toLat;
-    private Double toLon;
-    private Double distanceKm;
-    private Double estimatedPrice;
-
-    @Builder.Default
     @Enumerated(EnumType.STRING)
     private ShipmentStatus status = ShipmentStatus.PENDING;
 

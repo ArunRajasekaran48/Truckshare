@@ -18,8 +18,9 @@ import java.util.UUID;
 public class MatchController {
 
     private final MatchingService matchingService;
+
     @GetMapping("/{id}")
-    public ResponseEntity<List<TruckResponseDTO>> getMatches(@PathVariable UUID id){
+    public ResponseEntity<List<TruckResponseDTO>> getMatches(@PathVariable UUID id) {
         return matchingService.findMatches(id);
     }
 }

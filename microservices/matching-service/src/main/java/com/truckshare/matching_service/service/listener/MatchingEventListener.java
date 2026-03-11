@@ -19,11 +19,7 @@ public class MatchingEventListener {
 
     private final MatchingService matchingService;
 
-    @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "matching.shipment.created.queue", durable = "true"),
-            exchange = @Exchange(value = RabbitMQConfig.EXCHANGE_NAME, type = "topic"),
-            key = "shipment.created"
-    ))
+    @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "matching.shipment.created.queue", durable = "true"), exchange = @Exchange(value = RabbitMQConfig.EXCHANGE_NAME, type = "topic"), key = "shipment.created"))
     public void handleShipmentCreatedEvent(ShipmentCreatedEvent event) {
         log.info("Received ShipmentCreatedEvent for shipment id: {}. Finding initial matches...", event.id());
         try {
@@ -34,15 +30,13 @@ public class MatchingEventListener {
         }
     }
 
-    @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "matching.truck.capacity.updated.queue", durable = "true"),
-            exchange = @Exchange(value = RabbitMQConfig.EXCHANGE_NAME, type = "topic"),
-            key = "truck.capacity.updated"
-    ))
+    @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "matching.truck.capacity.updated.queue", durable = "true"), exchange = @Exchange(value = RabbitMQConfig.EXCHANGE_NAME, type = "topic"), key = "truck.capacity.updated"))
     public void handleTruckCapacityUpdatedEvent(TruckCapacityUpdatedEvent event) {
-        log.info("Received TruckCapacityUpdatedEvent for truck id: {}. New capacity: {}W, {}V.", 
-            event.truckId(), event.availableWeight(), event.availableVolume());
-        // In a real scenario, this would trigger an evaluation of pending shipments against this newly available capacity
-        // and send push notifications to businesses whose shipments match the truck's route.
+        log.info("Received TruckCapacityUpdatedEvent for truck id: {}. New capacity: {}W, {}V.",
+                event.truckId(), event.availableWeight(), event.availableVolume());
+        // In a real scenario, this would trigger an evaluation of pending shipments
+        // against this newly available capacity
+        // and send push notifications to businesses whose shipments match the truck's
+        // route.
     }
 }

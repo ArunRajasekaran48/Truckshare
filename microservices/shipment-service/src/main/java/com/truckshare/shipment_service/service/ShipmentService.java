@@ -29,16 +29,10 @@ public class ShipmentService {
     private final ShipmentRepository shipmentRepository;
     private final OutboxEventRepository outboxEventRepository;
     private final ObjectMapper objectMapper;
-    private final LocationService locationService;
-    private final PricingService pricingService;
 
     @org.springframework.transaction.annotation.Transactional
     public ShipmentResponseDto createShipment(ShipmentRequestDto dto) {
         Shipment shipment = ShipmentMapper.toEntity(dto);
-
-        // Calculate Location & Price
-        enrichShipmentData(shipment);
-
         Shipment savedShipment = shipmentRepository.save(shipment);
 
         ShipmentCreatedEvent event = new ShipmentCreatedEvent(
@@ -88,9 +82,6 @@ public class ShipmentService {
         shipment.setRequiredWeight(dto.getRequiredWeight());
         shipment.setRequiredVolume(dto.getRequiredVolume());
         shipment.setIsSplit(dto.getIsSplit());
-
-        enrichShipmentData(shipment);
-
         Shipment updatedShipment = shipmentRepository.save(shipment);
         return ShipmentMapper.toDto(updatedShipment);
     }
@@ -135,30 +126,5 @@ public class ShipmentService {
         }
 
         return shipmentRepository.save(shipment);
-    }
-
-    private void enrichShipmentData(Shipment shipment) {
-        try {
-            double[] fromCoords = locationService.getCoordinates(shipment.getFromLocation());
-            double[] toCoords = locationService.getCoordinates(shipment.getToLocation());
-
-            if (fromCoords != null && toCoords != null) {
-                shipment.setFromLat(fromCoords[0]);
-                shipment.setFromLon(fromCoords[1]);
-                shipment.setToLat(toCoords[0]);
-                shipment.setToLon(toCoords[1]);
-
-                Double distance = locationService.getDistanceKm(
-                        fromCoords[0], fromCoords[1],
-                        toCoords[0], toCoords[1]);
-                shipment.setDistanceKm(distance);
-
-                Double price = pricingService.calculateEstimatedPrice(
-                        distance, shipment.getRequiredWeight(), shipment.getRequiredVolume());
-                shipment.setEstimatedPrice(price);
-            }
-        } catch (Exception e) {
-            log.error("Failed to enrich shipment with location/price data", e);
-        }
     }
 }

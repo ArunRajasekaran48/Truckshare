@@ -53,9 +53,10 @@ public class MatchingService {
         }
 
         // Prevent matching if the shipment is already fully booked or cancelled
-        if (shipmentResponse.getStatus() == ShipmentStatus.BOOKED || 
-            shipmentResponse.getStatus() == ShipmentStatus.CANCELLED) {
-            throw new IllegalArgumentException("Cannot find matches for a shipment that is already " + shipmentResponse.getStatus());
+        if (shipmentResponse.getStatus() == ShipmentStatus.BOOKED ||
+                shipmentResponse.getStatus() == ShipmentStatus.CANCELLED) {
+            throw new IllegalArgumentException(
+                    "Cannot find matches for a shipment that is already " + shipmentResponse.getStatus());
         }
 
         // Check if the shipment is already partially booked and is split

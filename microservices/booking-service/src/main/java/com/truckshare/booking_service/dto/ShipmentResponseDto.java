@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 /**
- * Lightweight copy of the shipment-service response so booking-service can perform
+ * Lightweight copy of the shipment-service response so booking-service can
+ * perform
  * pre-booking validation without depending directly on the shipment module.
  */
 @Data

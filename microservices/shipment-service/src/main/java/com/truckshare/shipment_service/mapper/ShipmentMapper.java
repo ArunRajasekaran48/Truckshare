@@ -37,12 +37,6 @@ public class ShipmentMapper {
                 .allocatedVolume(shipment.getAllocatedVolume())
                 .isSplit(shipment.getIsSplit())
                 .status(shipment.getStatus())
-                .fromLat(shipment.getFromLat())
-                .fromLon(shipment.getFromLon())
-                .toLat(shipment.getToLat())
-                .toLon(shipment.getToLon())
-                .distanceKm(shipment.getDistanceKm())
-                .estimatedPrice(shipment.getEstimatedPrice())
                 .build();
     }
 }

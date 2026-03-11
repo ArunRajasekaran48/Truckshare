@@ -23,10 +23,10 @@ public class ShipmentTruck {
     private UUID id;
 
     @Column(nullable = false)
-    private UUID shipmentId;  // FK to Shipment
+    private UUID shipmentId; // FK to Shipment
 
     @Column(nullable = false)
-    private UUID truckId;     // FK to Truck Service
+    private UUID truckId; // FK to Truck Service
 
     @Column(nullable = false)
     private Double allocatedWeight;
