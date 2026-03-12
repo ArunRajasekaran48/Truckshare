@@ -17,6 +17,7 @@ public class ShipmentMapper {
                 .toLocation(dto.getToLocation())
                 .requiredWeight(dto.getRequiredWeight())
                 .requiredVolume(dto.getRequiredVolume())
+                .requiredLength(dto.getRequiredLength())
                 .isSplit(dto.getIsSplit())
                 .status(dto.getStatus())
                 .build();
@@ -33,8 +34,10 @@ public class ShipmentMapper {
                 .toLocation(shipment.getToLocation())
                 .requiredWeight(shipment.getRequiredWeight())
                 .requiredVolume(shipment.getRequiredVolume())
+                .requiredLength(shipment.getRequiredLength())
                 .allocatedWeight(shipment.getAllocatedWeight())
                 .allocatedVolume(shipment.getAllocatedVolume())
+                .allocatedLength(shipment.getAllocatedLength())
                 .isSplit(shipment.getIsSplit())
                 .status(shipment.getStatus())
                 .build();

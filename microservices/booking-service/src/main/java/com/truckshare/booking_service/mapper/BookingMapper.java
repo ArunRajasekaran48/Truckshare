@@ -12,6 +12,7 @@ public class BookingMapper {
                 .truckId(entity.getTruckId())
                 .allocatedWeight(entity.getAllocatedWeight())
                 .allocatedVolume(entity.getAllocatedVolume())
+                .allocatedLength(entity.getAllocatedLength())
                 .paymentConfirmed(entity.getPaymentConfirmed())
                 .paymentReference(entity.getPaymentReference())
                 .paymentConfirmedAt(entity.getPaymentConfirmedAt())
@@ -25,6 +26,7 @@ public class BookingMapper {
                 .truckId(request.getTruckId())
                 .allocatedWeight(request.getAllocatedWeight())
                 .allocatedVolume(request.getAllocatedVolume())
+                .allocatedLength(request.getAllocatedLength())
                 .businessUserId(request.getBusinessUserId())
                 .build();
     }

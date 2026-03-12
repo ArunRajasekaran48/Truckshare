@@ -64,13 +64,15 @@ public class MatchingService {
             // Calculate remaining capacity needed
             double remainingWeight = shipmentResponse.getRequiredWeight() - shipmentResponse.getAllocatedWeight();
             double remainingVolume = shipmentResponse.getRequiredVolume() - shipmentResponse.getAllocatedVolume();
+            double remainingLength = shipmentResponse.getRequiredLength() - shipmentResponse.getAllocatedLength();
 
             // Search for trucks that can handle the remaining capacity
             List<TruckResponseDTO> matchedTrucks = truckClient.searchTrucks(
                     shipmentResponse.getFromLocation(),
                     shipmentResponse.getToLocation(),
                     remainingWeight,
-                    remainingVolume);
+                    remainingVolume,
+                    remainingLength);
 
             if (matchedTrucks == null || matchedTrucks.isEmpty()) {
                 throw new NoMatchingTrucksException(
@@ -87,7 +89,8 @@ public class MatchingService {
                     shipmentResponse.getFromLocation(),
                     shipmentResponse.getToLocation(),
                     shipmentResponse.getRequiredWeight(),
-                    shipmentResponse.getRequiredVolume());
+                    shipmentResponse.getRequiredVolume(),
+                    shipmentResponse.getRequiredLength());
         } else {
             matchedTrucks = truckClient.splitSearchTrucks(
                     shipmentResponse.getFromLocation(),
@@ -101,6 +104,19 @@ public class MatchingService {
         // Only update status if it's a new shipment
         if (shipmentResponse.getStatus() == ShipmentStatus.PENDING) {
             shipmentClient.updateShipmentStatus(shipmentId, ShipmentStatus.MATCHED);
+        }
+
+        // Apply Price Calculation: max(spacePrice, weightPrice)
+        for(TruckResponseDTO truck : matchedTrucks) {
+            double reqLen = shipmentResponse.getIsSplit() && shipmentResponse.getStatus() == ShipmentStatus.PARTIALLY_BOOKED ? 
+                (shipmentResponse.getRequiredLength() - shipmentResponse.getAllocatedLength()) : shipmentResponse.getRequiredLength();
+            double reqWt = shipmentResponse.getIsSplit() && shipmentResponse.getStatus() == ShipmentStatus.PARTIALLY_BOOKED ? 
+                (shipmentResponse.getRequiredWeight() - shipmentResponse.getAllocatedWeight()) : shipmentResponse.getRequiredWeight();
+
+            double spacePrice = reqLen * (truck.getPricePerLength() != null ? truck.getPricePerLength() : 0.0);
+            double weightPrice = reqWt * (truck.getPricePerKg() != null ? truck.getPricePerKg() : 0.0);
+            
+            truck.setPrice(Math.max(spacePrice, weightPrice));
         }
 
         return ResponseEntity.ok(matchedTrucks);

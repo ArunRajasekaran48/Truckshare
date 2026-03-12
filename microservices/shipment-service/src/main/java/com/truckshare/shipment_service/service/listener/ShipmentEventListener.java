@@ -24,10 +24,10 @@ public class ShipmentEventListener {
             key = "booking.confirmed"
     ))
     public void handleBookingConfirmedEvent(BookingConfirmedEvent event) {
-        log.info("Received BookingConfirmedEvent for shipment id: {}. Updating allocation: {} weight, {} volume.", 
-            event.shipmentId(), event.allocatedWeight(), event.allocatedVolume());
+        log.info("Received BookingConfirmedEvent for shipment id: {}. Updating allocation: {} weight, {} volume, {} length.", 
+            event.shipmentId(), event.allocatedWeight(), event.allocatedVolume(), event.allocatedLength());
         try {
-            shipmentService.updateAllocation(event.shipmentId(), event.allocatedWeight(), event.allocatedVolume());
+            shipmentService.updateAllocation(event.shipmentId(), event.allocatedWeight(), event.allocatedVolume(), event.allocatedLength());
             log.info("Successfully updated allocation for shipment id: {}", event.shipmentId());
         } catch (Exception e) {
             log.error("Failed to update allocation for shipment id: {} - {}", event.shipmentId(), e.getMessage());

@@ -48,7 +48,7 @@ public class BookingService {
         booking.setPaymentConfirmed(false);
 
         // Synchronously reserve capacity in truck-service
-        truckClient.reserveCapacity(request.getTruckId(), request.getAllocatedWeight(), request.getAllocatedVolume());
+        truckClient.reserveCapacity(request.getTruckId(), request.getAllocatedWeight(), request.getAllocatedVolume(), request.getAllocatedLength());
 
         ShipmentTruck saved = bookingRepository.save(booking);
 
@@ -58,6 +58,7 @@ public class BookingService {
                 saved.getTruckId(),
                 saved.getAllocatedWeight(),
                 saved.getAllocatedVolume(),
+                request.getAllocatedLength(),
                 request.getBusinessUserId());
 
         try {
@@ -100,36 +101,34 @@ public class BookingService {
 
         double requiredWeight = shipment.getRequiredWeight() != null ? shipment.getRequiredWeight() : 0.0;
         double requiredVolume = shipment.getRequiredVolume() != null ? shipment.getRequiredVolume() : 0.0;
+        double requiredLength = shipment.getRequiredLength() != null ? shipment.getRequiredLength() : 0.0;
 
         double requestedWeight = request.getAllocatedWeight() != null ? request.getAllocatedWeight() : 0.0;
         double requestedVolume = request.getAllocatedVolume() != null ? request.getAllocatedVolume() : 0.0;
+        double requestedLength = request.getAllocatedLength() != null ? request.getAllocatedLength() : 0.0;
 
         if (!Boolean.TRUE.equals(shipment.getIsSplit())) {
             if (bookingRepository.existsByShipmentIdAndTruckIdAndBusinessUserId(
-                    request.getShipmentId(),
-                    request.getTruckId(),
-                    request.getBusinessUserId())) {
-                throw new ShipmentAlreadyBookedException(
-                        "This business user has already booked this shipment with the specified truck.");
-            }
-            if (existingAllocatedWeight > 0 || existingAllocatedVolume > 0) {
-                throw new ShipmentAlreadyBookedException("Non-splittable shipment already has an allocation.");
+                    shipment.getId(), request.getTruckId(), request.getBusinessUserId())) {
+                throw new ShipmentAlreadyBookedException("Booking already exists for this shipment and truck.");
             }
 
-            if (requestedWeight < requiredWeight || requestedVolume < requiredVolume) {
-                throw new NonSplittableShipmentException("Non-splittable shipment must be fully allocated.");
+            if (requestedWeight != requiredWeight || requestedVolume != requiredVolume || requestedLength != requiredLength) {
+                throw new NonSplittableShipmentException(
+                        "For a non-split shipment, allocated weight, volume, and length must exactly match the required amounts.");
             }
+        } else {
+            double totalAllocatedWeight = shipment.getAllocatedWeight() != null ? shipment.getAllocatedWeight() : 0.0;
+            double totalAllocatedVolume = shipment.getAllocatedVolume() != null ? shipment.getAllocatedVolume() : 0.0;
+            double totalAllocatedLength = shipment.getAllocatedLength() != null ? shipment.getAllocatedLength() : 0.0;
 
+            if (totalAllocatedWeight + requestedWeight > requiredWeight
+                    || totalAllocatedVolume + requestedVolume > requiredVolume
+                    || totalAllocatedLength + requestedLength > requiredLength) {
+                throw new AllocationExceededException(
+                        "Total allocated weight, volume, or length exceeds shipment requirements.");
+            }
         }
-
-        if (existingAllocatedWeight + requestedWeight > requiredWeight) {
-            throw new AllocationExceededException("Allocated weight exceeds the shipment requirement.");
-        }
-
-        if (existingAllocatedVolume + requestedVolume > requiredVolume) {
-            throw new AllocationExceededException("Allocated volume exceeds the shipment requirement.");
-        }
-
     }
 
     public ShipmentTruckResponse acknowledgePayment(
@@ -155,6 +154,7 @@ public class BookingService {
                 booking.getTruckId(),
                 booking.getAllocatedWeight(),
                 booking.getAllocatedVolume(),
+                booking.getAllocatedLength(),
                 truckOwnerId);
 
         try {
@@ -198,7 +198,8 @@ public class BookingService {
                 booking.getShipmentId(),
                 booking.getTruckId(),
                 booking.getAllocatedWeight(),
-                booking.getAllocatedVolume());
+                booking.getAllocatedVolume(),
+                booking.getAllocatedLength());
 
         try {
             OutboxEvent outboxEvent = OutboxEvent.builder()
@@ -215,7 +216,7 @@ public class BookingService {
         }
 
         // Synchronously restore capacity in truck-service
-        truckClient.restoreCapacity(booking.getTruckId(), booking.getAllocatedWeight(), booking.getAllocatedVolume());
+        truckClient.restoreCapacity(booking.getTruckId(), booking.getAllocatedWeight(), booking.getAllocatedVolume(), booking.getAllocatedLength());
 
         bookingRepository.delete(booking);
         return BookingMapper.toResponse(booking);
@@ -232,11 +233,12 @@ public class BookingService {
         try {
             // 1. Notify other services that this booking is cancelled due to expiration
             BookingCancelledEvent event = new BookingCancelledEvent(
+                    booking.getId(),
                     booking.getShipmentId(),
                     booking.getTruckId(),
-                    booking.getId(),
                     booking.getAllocatedWeight(),
-                    booking.getAllocatedVolume());
+                    booking.getAllocatedVolume(),
+                    booking.getAllocatedLength());
 
             OutboxEvent outboxEvent = OutboxEvent.builder()
                     .aggregateType("Booking")
@@ -254,7 +256,7 @@ public class BookingService {
         // 2. Synchronously restore capacity in truck-service
         try {
             truckClient.restoreCapacity(booking.getTruckId(), booking.getAllocatedWeight(),
-                    booking.getAllocatedVolume());
+                    booking.getAllocatedVolume(), booking.getAllocatedLength());
         } catch (Exception e) {
             log.error("Failed to restore capacity synchronously during auto-expiry for booking: {}", booking.getId(),
                     e);

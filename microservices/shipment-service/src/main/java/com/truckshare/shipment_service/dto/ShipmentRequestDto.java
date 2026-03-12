@@ -18,6 +18,7 @@ public class ShipmentRequestDto {
     private String toLocation;
     private Double requiredWeight;
     private Double requiredVolume;
+    private Double requiredLength;
     private Boolean isSplit;
     private ShipmentStatus status;
 }

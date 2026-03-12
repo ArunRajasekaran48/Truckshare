@@ -17,7 +17,8 @@ public interface TruckClient {
             @RequestParam String from,
             @RequestParam String to,
             @RequestParam Double requiredWeight,
-            @RequestParam Double requiredVolume
+            @RequestParam Double requiredVolume,
+            @RequestParam Double requiredLength
     );
 
     @GetMapping("/trucks/split-search")

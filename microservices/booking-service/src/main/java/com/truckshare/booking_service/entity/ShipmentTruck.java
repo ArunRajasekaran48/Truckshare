@@ -35,6 +35,9 @@ public class ShipmentTruck {
     private Double allocatedVolume;
 
     @Column(nullable = false)
+    private Double allocatedLength;
+
+    @Column(nullable = false)
     private String businessUserId;
 
     // Payment fields

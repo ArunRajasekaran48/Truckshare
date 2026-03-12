@@ -18,6 +18,7 @@ public class ShipmentTruckResponse {
     private UUID truckId;
     private Double allocatedWeight;
     private Double allocatedVolume;
+    private Double allocatedLength;
     private Boolean paymentConfirmed;
     private String paymentReference;
     private Instant paymentConfirmedAt;

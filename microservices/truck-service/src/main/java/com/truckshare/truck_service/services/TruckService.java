@@ -36,9 +36,9 @@ public class TruckService {
         return TruckMapper.toDto(truckRepository.save(truck));
     }
 
-    public List<TruckResponseDTO> searchTrucks(String from, String to, Double requiredWeight, Double requiredVolume) {
+    public List<TruckResponseDTO> searchTrucks(String from, String to, Double requiredWeight, Double requiredVolume, Double requiredLength) {
         List<Truck> trucks = truckRepository.findByFromLocationAndToLocationWithCapacity(from, to, requiredWeight,
-                requiredVolume, TruckStatus.AVAILABLE);
+                requiredVolume, requiredLength != null ? requiredLength : 0.0, TruckStatus.AVAILABLE);
         return trucks.stream()
                 .map(TruckMapper::toDto)
                 .toList();
@@ -64,10 +64,14 @@ public class TruckService {
         existingTruck.setModel(truckRequestDTO.getModel());
         existingTruck.setCapacityWeight(truckRequestDTO.getCapacityWeight());
         existingTruck.setCapacityVolume(truckRequestDTO.getCapacityVolume());
+        existingTruck.setCapacityLength(truckRequestDTO.getCapacityLength());
         existingTruck.setFromLocation(truckRequestDTO.getFromLocation());
         existingTruck.setToLocation(truckRequestDTO.getToLocation());
         existingTruck.setAvailableWeight(truckRequestDTO.getAvailableWeight());
         existingTruck.setAvailableVolume(truckRequestDTO.getAvailableVolume());
+        existingTruck.setAvailableLength(truckRequestDTO.getAvailableLength());
+        existingTruck.setPricePerKg(truckRequestDTO.getPricePerKg());
+        existingTruck.setPricePerLength(truckRequestDTO.getPricePerLength());
         existingTruck.setStatus(TruckStatus.valueOf(truckRequestDTO.getStatus()));
 
         Truck savedTruck = truckRepository.save(existingTruck);
@@ -90,17 +94,30 @@ public class TruckService {
     }
 
     @org.springframework.transaction.annotation.Transactional
-    public TruckResponseDTO updateCapacity(UUID id, double bookedWeight, double bookedVolume) {
+    public TruckResponseDTO updateCapacity(UUID id, double bookedWeight, double bookedVolume, double bookedLength) {
         Truck existingTruck = truckRepository.findById(id)
                 .orElseThrow(() -> new TruckNotFoundException("Truck not found with id: " + id));
         if (bookedWeight > existingTruck.getAvailableWeight()) {
             throw new InsufficientCapacityException("Not enough available weight for booking.");
         }
-        if (bookedVolume > existingTruck.getAvailableVolume()) {
+        if (bookedLength > existingTruck.getAvailableLength()) {
+            throw new InsufficientCapacityException("Not enough available length for booking.");
+        }
+
+        // Calculate the volume to deduct based on the length booked
+        double volumeRatio = existingTruck.getCapacityVolume() / existingTruck.getCapacityLength();
+        double calculatedBookedVolume = bookedLength * volumeRatio;
+
+        // Take the max of explicitly requested volume and calculated volume to be safe
+        double actualBookedVolume = Math.max(bookedVolume, calculatedBookedVolume);
+
+        if (actualBookedVolume > existingTruck.getAvailableVolume()) {
             throw new InsufficientCapacityException("Not enough available volume for booking.");
         }
+
         existingTruck.setAvailableWeight(existingTruck.getAvailableWeight() - bookedWeight);
-        existingTruck.setAvailableVolume(existingTruck.getAvailableVolume() - bookedVolume);
+        existingTruck.setAvailableVolume(existingTruck.getAvailableVolume() - actualBookedVolume);
+        existingTruck.setAvailableLength(existingTruck.getAvailableLength() - bookedLength);
 
         Truck savedTruck = truckRepository.save(existingTruck);
         publishCapacityUpdate(savedTruck);
@@ -111,16 +128,22 @@ public class TruckService {
      * Restores previously reserved capacity when a booking is cancelled.
      */
     @org.springframework.transaction.annotation.Transactional
-    public TruckResponseDTO restoreCapacity(UUID id, double cancelledWeight, double cancelledVolume) {
+    public TruckResponseDTO restoreCapacity(UUID id, double cancelledWeight, double cancelledVolume, double cancelledLength) {
         Truck existingTruck = truckRepository.findById(id)
                 .orElseThrow(() -> new TruckNotFoundException("Truck not found with id: " + id));
 
+        double volumeRatio = existingTruck.getCapacityVolume() / existingTruck.getCapacityLength();
+        double calculatedCancelledVolume = cancelledLength * volumeRatio;
+        double actualCancelledVolume = Math.max(cancelledVolume, calculatedCancelledVolume);
+
         double newWeight = existingTruck.getAvailableWeight() + cancelledWeight;
-        double newVolume = existingTruck.getAvailableVolume() + cancelledVolume;
+        double newVolume = existingTruck.getAvailableVolume() + actualCancelledVolume;
+        double newLength = existingTruck.getAvailableLength() + cancelledLength;
 
         // Cap to max capacity
         existingTruck.setAvailableWeight(Math.min(newWeight, existingTruck.getCapacityWeight()));
         existingTruck.setAvailableVolume(Math.min(newVolume, existingTruck.getCapacityVolume()));
+        existingTruck.setAvailableLength(Math.min(newLength, existingTruck.getCapacityLength()));
 
         // Restore status to AVAILABLE if it was FULL and we have space now
         if (TruckStatus.FULL.equals(existingTruck.getStatus()) &&
@@ -163,6 +186,7 @@ public class TruckService {
                 truck.getId(),
                 truck.getAvailableWeight(),
                 truck.getAvailableVolume(),
+                truck.getAvailableLength(),
                 truck.getStatus().name());
 
         try {

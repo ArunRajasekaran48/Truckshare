@@ -7,5 +7,6 @@ public record BookingCancelledEvent(
         UUID shipmentId,
         UUID truckId,
         Double allocatedWeight,
-        Double allocatedVolume) {
+        Double allocatedVolume,
+        Double allocatedLength) {
 }

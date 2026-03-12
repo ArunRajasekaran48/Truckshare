@@ -35,6 +35,8 @@ public class Shipment {
     private Double requiredWeight;
     @Column(nullable = false)
     private Double requiredVolume;
+    @Column(nullable = false)
+    private Double requiredLength;
 
     // @Column(nullable = false)
     @Builder.Default
@@ -45,6 +47,10 @@ public class Shipment {
     @Builder.Default
     @ColumnDefault("0")
     private Double allocatedVolume = 0d;
+
+    @Builder.Default
+    @ColumnDefault("0")
+    private Double allocatedLength = 0d;
 
     @Column(nullable = false)
     private Boolean isSplit;

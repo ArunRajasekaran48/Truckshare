@@ -11,10 +11,15 @@ public class TruckResponseDTO {
 	private String model;
 	private Double capacityWeight;
 	private Double capacityVolume;
+    private Double capacityLength;
 	private String fromLocation;
 	private String toLocation;
 	private Double availableWeight;
 	private Double availableVolume;
+    private Double availableLength;
+    private Double pricePerKg;
+    private Double pricePerLength;
+    private Double price;
 	private String status;
     private Instant createdAt ;
     private Instant updatedAt ;

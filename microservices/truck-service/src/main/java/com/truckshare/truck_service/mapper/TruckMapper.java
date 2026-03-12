@@ -13,10 +13,14 @@ public class TruckMapper {
                 .model(dto.getModel())
                 .capacityWeight(dto.getCapacityWeight())
                 .capacityVolume(dto.getCapacityVolume())
+                .capacityLength(dto.getCapacityLength())
                 .fromLocation(dto.getFromLocation())
                 .toLocation(dto.getToLocation())
                 .availableWeight(dto.getAvailableWeight())
                 .availableVolume(dto.getAvailableVolume())
+                .availableLength(dto.getAvailableLength())
+                .pricePerKg(dto.getPricePerKg())
+                .pricePerLength(dto.getPricePerLength())
                 .status(dto.getStatus() != null ? com.truckshare.truck_service.models.TruckStatus.valueOf(dto.getStatus()) : com.truckshare.truck_service.models.TruckStatus.AVAILABLE)
                 .build();
     }
@@ -30,10 +34,14 @@ public class TruckMapper {
         dto.setModel(truck.getModel());
         dto.setCapacityWeight(truck.getCapacityWeight());
         dto.setCapacityVolume(truck.getCapacityVolume());
+        dto.setCapacityLength(truck.getCapacityLength());
         dto.setFromLocation(truck.getFromLocation());
         dto.setToLocation(truck.getToLocation());
         dto.setAvailableWeight(truck.getAvailableWeight());
         dto.setAvailableVolume(truck.getAvailableVolume());
+        dto.setAvailableLength(truck.getAvailableLength());
+        dto.setPricePerKg(truck.getPricePerKg());
+        dto.setPricePerLength(truck.getPricePerLength());
         dto.setStatus(truck.getStatus() != null ? truck.getStatus().name() : null);
         dto.setCreatedAt(truck.getCreatedAt());
         dto.setUpdatedAt(truck.getUpdatedAt());

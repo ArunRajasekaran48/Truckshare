@@ -8,5 +8,6 @@ public record BookingConfirmedEvent(
     UUID truckId,
     Double allocatedWeight,
     Double allocatedVolume,
+    Double allocatedLength,
     String truckOwnerId
 ) {}

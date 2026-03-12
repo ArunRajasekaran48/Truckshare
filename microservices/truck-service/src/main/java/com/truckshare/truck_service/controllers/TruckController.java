@@ -36,8 +36,9 @@ public class TruckController {
             @RequestParam String from,
             @RequestParam String to,
             @RequestParam Double requiredWeight,
-            @RequestParam Double requiredVolume) {
-        List<TruckResponseDTO> trucks = truckService.searchTrucks(from, to, requiredWeight, requiredVolume);
+            @RequestParam Double requiredVolume,
+            @RequestParam Double requiredLength) {
+        List<TruckResponseDTO> trucks = truckService.searchTrucks(from, to, requiredWeight, requiredVolume, requiredLength);
         return ResponseEntity.ok(trucks);
     }
 
@@ -118,6 +119,7 @@ public class TruckController {
             @PathVariable UUID id,
             @RequestParam double bookedWeight,
             @RequestParam double bookedVolume,
+            @RequestParam double bookedLength,
             @RequestHeader("UserId") String ownerId,
             @RequestHeader("UserRole") String role) {
         if (!"TRUCK_OWNER".equals(role)) {
@@ -130,7 +132,7 @@ public class TruckController {
         if (!truck.getOwnerId().equals(ownerId)) {
             return ResponseEntity.status(403).build();
         }
-        TruckResponseDTO updated = truckService.updateCapacity(id, bookedWeight, bookedVolume);
+        TruckResponseDTO updated = truckService.updateCapacity(id, bookedWeight, bookedVolume, bookedLength);
         return ResponseEntity.ok(updated);
     }
 
@@ -168,9 +170,10 @@ public class TruckController {
     public ResponseEntity<TruckResponseDTO> reserveCapacityInternal(
             @PathVariable UUID id,
             @RequestParam double weight,
-            @RequestParam double volume) {
+            @RequestParam double volume,
+            @RequestParam double length) {
         // Internal call, skip owner check
-        TruckResponseDTO updated = truckService.updateCapacity(id, weight, volume);
+        TruckResponseDTO updated = truckService.updateCapacity(id, weight, volume, length);
         return ResponseEntity.ok(updated);
     }
 
@@ -178,9 +181,10 @@ public class TruckController {
     public ResponseEntity<TruckResponseDTO> restoreCapacityInternal(
             @PathVariable UUID id,
             @RequestParam double weight,
-            @RequestParam double volume) {
+            @RequestParam double volume,
+            @RequestParam double length) {
         // Internal call, skip owner check
-        TruckResponseDTO updated = truckService.restoreCapacity(id, weight, volume);
+        TruckResponseDTO updated = truckService.restoreCapacity(id, weight, volume, length);
         return ResponseEntity.ok(updated);
     }
 }

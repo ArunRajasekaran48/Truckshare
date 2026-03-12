@@ -36,6 +36,7 @@ public class Truck {
 
     private Double capacityWeight;
     private Double capacityVolume;
+    private Double capacityLength;
 
     @Column(nullable = false)
     private String fromLocation;
@@ -45,6 +46,11 @@ public class Truck {
 
     private Double availableWeight;
     private Double availableVolume;
+    private Double availableLength;
+
+    private Double pricePerKg;
+    private Double pricePerLength;
+
 
     @Builder.Default
     @Enumerated(EnumType.STRING)

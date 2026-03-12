@@ -10,7 +10,7 @@ import java.util.List;
 public class TruckClientFallback implements TruckClient {
 
     @Override
-    public List<TruckResponseDTO> searchTrucks(String from, String to, Double weight, Double volume) {
+    public List<TruckResponseDTO> searchTrucks(String from, String to, Double weight, Double volume, Double length) {
         throw new ExternalServiceUnavailableException("Truck service is unavailable. Please try again later.");
     }
 

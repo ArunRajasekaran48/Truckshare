@@ -6,5 +6,6 @@ public record TruckCapacityUpdatedEvent(
     UUID truckId,
     Double availableWeight,
     Double availableVolume,
+    Double availableLength,
     String status
 ) {}

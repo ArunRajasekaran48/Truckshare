@@ -21,11 +21,13 @@ public interface TruckClient {
     void reserveCapacity(
             @PathVariable("id") UUID id,
             @RequestParam("weight") double weight,
-            @RequestParam("volume") double volume);
+            @RequestParam("volume") double volume,
+            @RequestParam("length") double length);
 
     @PutMapping("/trucks/internal/restore-capacity/{id}")
     void restoreCapacity(
             @PathVariable("id") UUID id,
             @RequestParam("weight") double weight,
-            @RequestParam("volume") double volume);
+            @RequestParam("volume") double volume,
+            @RequestParam("length") double length);
 }

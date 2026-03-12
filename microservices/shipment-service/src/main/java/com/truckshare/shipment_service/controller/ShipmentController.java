@@ -68,8 +68,9 @@ public class ShipmentController {
     public ResponseEntity<Shipment> updateAllocation(
             @PathVariable UUID shipmentId,
             @RequestParam Double allocatedWeight,
-            @RequestParam Double allocatedVolume) {
-        Shipment updated = shipmentService.updateAllocation(shipmentId, allocatedWeight, allocatedVolume);
+            @RequestParam Double allocatedVolume,
+            @RequestParam Double allocatedLength) {
+        Shipment updated = shipmentService.updateAllocation(shipmentId, allocatedWeight, allocatedVolume, allocatedLength);
         return ResponseEntity.ok(updated);
     }
 

@@ -16,6 +16,7 @@ public class CreateBookingRequest {
     private UUID truckId;
     private Double allocatedWeight;
     private Double allocatedVolume;
+    private Double allocatedLength;
     private String businessUserId;
 }
 

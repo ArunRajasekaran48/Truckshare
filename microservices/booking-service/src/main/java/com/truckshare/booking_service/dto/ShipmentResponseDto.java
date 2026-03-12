@@ -24,8 +24,10 @@ public class ShipmentResponseDto {
     private String toLocation;
     private Double requiredWeight;
     private Double requiredVolume;
+    private Double requiredLength;
     private Double allocatedWeight;
     private Double allocatedVolume;
+    private Double allocatedLength;
     private Boolean isSplit;
     private ShipmentStatus status;
 }
