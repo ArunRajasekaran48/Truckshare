@@ -1,8 +1,16 @@
 package com.truckshare.truck_service.dto;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class TruckRequestDTO {
 	private String licensePlate;
 	private String model;

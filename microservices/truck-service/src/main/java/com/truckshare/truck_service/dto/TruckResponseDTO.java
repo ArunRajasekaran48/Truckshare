@@ -1,9 +1,18 @@
 package com.truckshare.truck_service.dto;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 import java.util.UUID;
 import java.time.Instant;
 @Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class TruckResponseDTO {
 	private UUID id;
 	private String ownerId;

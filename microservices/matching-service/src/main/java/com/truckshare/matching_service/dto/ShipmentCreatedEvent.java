@@ -8,5 +8,6 @@ public record ShipmentCreatedEvent(
     String toLocation,
     Double requiredWeight,
     Double requiredVolume,
+    Double requiredLength,
     Boolean isSplit
 ) {}
