@@ -19,7 +19,7 @@ public class TruckResponseDTO {
     private Double availableLength;
     private Double pricePerKg;
     private Double pricePerLength;
-    private Double price;
+    private Double totalEstimatedPrice;
 	private String status;
     private Instant createdAt ;
     private Instant updatedAt ;

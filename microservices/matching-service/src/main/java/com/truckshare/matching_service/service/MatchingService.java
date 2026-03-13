@@ -116,7 +116,7 @@ public class MatchingService {
             double spacePrice = reqLen * (truck.getPricePerLength() != null ? truck.getPricePerLength() : 0.0);
             double weightPrice = reqWt * (truck.getPricePerKg() != null ? truck.getPricePerKg() : 0.0);
             
-            truck.setPrice(Math.max(spacePrice, weightPrice));
+            truck.setTotalEstimatedPrice(Math.max(spacePrice, weightPrice));
         }
 
         return ResponseEntity.ok(matchedTrucks);
