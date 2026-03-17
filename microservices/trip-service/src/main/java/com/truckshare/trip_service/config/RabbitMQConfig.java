@@ -11,6 +11,7 @@ public class RabbitMQConfig {
 
     public static final String EXCHANGE_NAME = "truckshare.exchange";
     public static final String ROUTING_KEY_BOOKING_CONFIRMED = "booking.confirmed";
+    public static final String ROUTING_KEY_TRIP_STATUS_UPDATED = "trip.status.updated";
     public static final String QUEUE_TRIP_BOOKING_CONFIRMED = "trip.booking.confirmed.queue";
 
     @Bean
