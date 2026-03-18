@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @RestController
@@ -27,7 +26,7 @@ public class TripController {
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<Trip> updateStatus(@PathVariable UUID id, @RequestParam TripStatus status) {
+    public ResponseEntity<Trip> updateTripStatus(@PathVariable UUID id, @RequestParam TripStatus status) {
         return ResponseEntity.ok(tripService.updateTripStatus(id, status));
     }
 
@@ -44,5 +43,11 @@ public class TripController {
         return redisTemplate.opsForValue().get(key)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/stops/{stopId}/complete")
+    public ResponseEntity<Void> completeStop(@PathVariable UUID stopId) {
+        tripService.completeStop(stopId);
+        return ResponseEntity.ok().build();
     }
 }
