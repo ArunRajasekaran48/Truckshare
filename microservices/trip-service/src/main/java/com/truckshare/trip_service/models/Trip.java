@@ -1,25 +1,11 @@
 package com.truckshare.trip_service.models;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -31,19 +17,21 @@ import java.util.UUID;
 public class Trip {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    // A trip is now identified by the truck's active journey
+    @Column(nullable = false)
+    private UUID bookingId;
+
+    @Column(nullable = false)
+    private UUID shipmentId;
+
+    @Column(nullable = false)
     private UUID truckId;
 
     @Enumerated(EnumType.STRING)
-    private TripStatus status;
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-    @JoinColumn(name = "trip_id")
     @Builder.Default
-    private List<TripStop> stops = new ArrayList<>();
+    private TripStatus status = TripStatus.PLANNED;
 
     private Double currentLat;
     private Double currentLng;
