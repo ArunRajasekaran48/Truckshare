@@ -12,15 +12,20 @@ import com.truckshare.truck_service.models.TruckStatus;
 import com.truckshare.truck_service.repository.TruckRepository;
 import com.truckshare.truck_service.models.OutboxEvent;
 import com.truckshare.truck_service.repository.OutboxEventRepository;
+import com.truckshare.truck_service.exception.InvalidDriverException;
+import com.truckshare.truck_service.exception.DriverAlreadyAssignedException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import com.truckshare.truck_service.models.TruckPoint;
 
 @Service
 @AllArgsConstructor
@@ -30,12 +35,14 @@ public class TruckService {
     private final TruckRepository truckRepository;
     private final OutboxEventRepository outboxEventRepository;
     private final ObjectMapper objectMapper;
+    private final com.truckshare.truck_service.clients.UserClient userClient;
 
     public TruckResponseDTO createTruck(TruckRequestDTO truckRequestDTO) {
         Truck truck = TruckMapper.toEntity(truckRequestDTO);
         return TruckMapper.toDto(truckRepository.save(truck));
     }
 
+    @Transactional(readOnly = true)
     public List<TruckResponseDTO> searchTrucks(String from, String to, Double requiredWeight, Double requiredVolume, Double requiredLength) {
         List<Truck> trucks = truckRepository.findByFromLocationAndToLocationWithCapacity(from, to, requiredWeight,
                 requiredVolume, requiredLength != null ? requiredLength : 0.0, TruckStatus.AVAILABLE);
@@ -44,12 +51,14 @@ public class TruckService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public TruckResponseDTO getTruckById(UUID id) {
         return truckRepository.findById(id)
                 .map(TruckMapper::toDto)
                 .orElseThrow(() -> new TruckNotFoundException("Truck not found with id: " + id));
     }
 
+    @Transactional(readOnly = true)
     public List<TruckResponseDTO> searchTrucksByOwner(String ownerId) {
         List<Truck> trucks = truckRepository.findByOwnerId(ownerId);
         return trucks.stream()
@@ -73,6 +82,15 @@ public class TruckService {
         existingTruck.setPricePerKg(truckRequestDTO.getPricePerKg());
         existingTruck.setPricePerLength(truckRequestDTO.getPricePerLength());
         existingTruck.setStatus(TruckStatus.valueOf(truckRequestDTO.getStatus()));
+        
+        // Update points
+        if (truckRequestDTO.getPoints() != null) {
+            existingTruck.getPoints().clear();
+            List<TruckPoint> newPoints = truckRequestDTO.getPoints().stream()
+                .map(p -> TruckMapper.toPointEntity(p, existingTruck))
+                .collect(Collectors.toList());
+            existingTruck.getPoints().addAll(newPoints);
+        }
 
         Truck savedTruck = truckRepository.save(existingTruck);
         publishCapacityUpdate(savedTruck);
@@ -174,11 +192,70 @@ public class TruckService {
                 .orElse(null);
     }
 
+    @Transactional(readOnly = true)
     public List<TruckResponseDTO> splitSearchTrucks(String from, String to) {
         List<Truck> trucks = truckRepository.findByFromLocationAndToLocationAndStatus(from, to, TruckStatus.AVAILABLE);
         return trucks.stream()
                 .map(TruckMapper::toDto)
                 .toList();
+    }
+
+    public TruckResponseDTO assignDriver(UUID id, String driverId, String driverName) {
+        // 1. Validate role via user-service
+        com.truckshare.truck_service.clients.UserClient.UserResponse user = userClient.getUserByUserId(driverId);
+        if (user == null || !"DRIVER".equals(user.getRole())) {
+            throw new InvalidDriverException("User " + driverId + " is not a registered driver.");
+        }
+
+        // 2. Strict Check: Driver cannot be assigned to ANY other truck
+        List<Truck> assignments = truckRepository.findByDriverId(driverId);
+        for (Truck t : assignments) {
+            if (!t.getId().equals(id)) {
+                throw new DriverAlreadyAssignedException(
+                    "Driver is already assigned to truck: " + t.getLicensePlate() + 
+                    " (Status: " + t.getStatus() + "). Please unassign them first."
+                );
+            }
+        }
+
+        Truck truck = truckRepository.findById(id)
+                .orElseThrow(() -> new TruckNotFoundException("Truck not found with id: " + id));
+        truck.setDriverId(driverId);
+        truck.setDriverName(user.getName() != null ? user.getName() : driverName);
+        return TruckMapper.toDto(truckRepository.save(truck));
+    }
+
+    public TruckResponseDTO unassignDriver(UUID id) {
+        Truck truck = truckRepository.findById(id)
+                .orElseThrow(() -> new TruckNotFoundException("Truck not found with id: " + id));
+        truck.setDriverId(null);
+        truck.setDriverName(null);
+        return TruckMapper.toDto(truckRepository.save(truck));
+    }
+
+    @Transactional(readOnly = true)
+    public TruckResponseDTO getTruckByDriverId(String driverId) {
+        List<Truck> trucks = truckRepository.findByDriverId(driverId);
+        if (trucks.isEmpty()) return null;
+
+        // If multiple exist (due to past bad data), prioritize the most "active" one
+        Truck bestMatch = trucks.stream()
+            .sorted((a, b) -> {
+                int scoreA = getStatusPriority(a.getStatus());
+                int scoreB = getStatusPriority(b.getStatus());
+                return Integer.compare(scoreB, scoreA); // Higher priority first
+            })
+            .findFirst()
+            .orElse(trucks.get(0));
+
+        return TruckMapper.toDto(bestMatch);
+    }
+
+    private int getStatusPriority(TruckStatus status) {
+        if (status == TruckStatus.IN_TRANSIT) return 3;
+        if (status == TruckStatus.FULL) return 2;
+        if (status == TruckStatus.AVAILABLE) return 1;
+        return 0;
     }
 
     private void publishCapacityUpdate(Truck truck) {

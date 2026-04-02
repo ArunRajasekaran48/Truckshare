@@ -58,4 +58,8 @@ public class UserService {
         return userRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
     }
+
+    public List<User> getUsersByRole(com.truckshare.user_service.entity.UserRole role) {
+        return userRepository.findByRole(role);
+    }
 }

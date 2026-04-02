@@ -13,10 +13,13 @@ public class BookingMapper {
                 .allocatedWeight(entity.getAllocatedWeight())
                 .allocatedVolume(entity.getAllocatedVolume())
                 .allocatedLength(entity.getAllocatedLength())
+                .businessUserId(entity.getBusinessUserId())
                 .paymentConfirmed(entity.getPaymentConfirmed())
                 .paymentReference(entity.getPaymentReference())
                 .paymentConfirmedAt(entity.getPaymentConfirmedAt())
                 .createdAt(entity.getCreatedAt())
+                .boardingPointId(entity.getBoardingPointId())
+                .droppingPointId(entity.getDroppingPointId())
                 .build();
     }
 
@@ -28,6 +31,8 @@ public class BookingMapper {
                 .allocatedVolume(request.getAllocatedVolume())
                 .allocatedLength(request.getAllocatedLength())
                 .businessUserId(request.getBusinessUserId())
+                .boardingPointId(request.getBoardingPointId())
+                .droppingPointId(request.getDroppingPointId())
                 .build();
     }
 }

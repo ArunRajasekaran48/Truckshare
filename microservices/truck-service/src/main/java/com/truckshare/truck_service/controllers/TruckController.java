@@ -187,4 +187,45 @@ public class TruckController {
         TruckResponseDTO updated = truckService.restoreCapacity(id, weight, volume, length);
         return ResponseEntity.ok(updated);
     }
+
+    @PutMapping("/{id}/assign-driver")
+    public ResponseEntity<TruckResponseDTO> assignDriver(
+            @PathVariable UUID id,
+            @RequestParam String driverId,
+            @RequestParam String driverName,
+            @RequestHeader("UserId") String ownerId,
+            @RequestHeader("UserRole") String role) {
+        if (!"TRUCK_OWNER".equals(role)) {
+            return ResponseEntity.status(403).build();
+        }
+        TruckResponseDTO truck = truckService.getTruckById(id);
+        if (truck == null) return ResponseEntity.notFound().build();
+        if (!truck.getOwnerId().equals(ownerId)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        return ResponseEntity.ok(truckService.assignDriver(id, driverId, driverName));
+    }
+
+    @PutMapping("/{id}/unassign-driver")
+    public ResponseEntity<TruckResponseDTO> unassignDriver(
+            @PathVariable UUID id,
+            @RequestHeader("UserId") String ownerId,
+            @RequestHeader("UserRole") String role) {
+        if (!"TRUCK_OWNER".equals(role)) {
+            return ResponseEntity.status(403).build();
+        }
+        TruckResponseDTO truck = truckService.getTruckById(id);
+        if (truck == null) return ResponseEntity.notFound().build();
+        if (!truck.getOwnerId().equals(ownerId)) return ResponseEntity.status(403).build();
+
+        return ResponseEntity.ok(truckService.unassignDriver(id));
+    }
+
+    @GetMapping("/assigned-to/{driverId}")
+    public ResponseEntity<TruckResponseDTO> getTruckByDriverId(@PathVariable String driverId) {
+        TruckResponseDTO truck = truckService.getTruckByDriverId(driverId);
+        if (truck == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(truck);
+    }
 }

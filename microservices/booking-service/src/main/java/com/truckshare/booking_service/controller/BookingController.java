@@ -56,8 +56,10 @@ public class BookingController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<ShipmentTruckResponse>> getAllBookings() {
-        return ResponseEntity.ok(bookingService.getAllBookings());
+    public ResponseEntity<List<ShipmentTruckResponse>> getAllBookings(
+            @RequestHeader("UserId") String userId,
+            @RequestHeader("UserRole") String role) {
+        return ResponseEntity.ok(bookingService.getAllBookings(userId, role));
     }
 
     @GetMapping("/{bookingId}")

@@ -31,6 +31,25 @@ public class TripController {
         return ResponseEntity.ok(tripService.updateTripStatus(id, status));
     }
 
+    @GetMapping("/booking/{bookingId}")
+    public ResponseEntity<Trip> getTripByBookingId(@PathVariable UUID bookingId) {
+        try {
+            return ResponseEntity.ok(tripService.getTripByBookingId(bookingId));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/booking/{bookingId}/status")
+    public ResponseEntity<Trip> updateStatusByBooking(@PathVariable UUID bookingId, @RequestParam TripStatus status) {
+        try {
+            Trip trip = tripService.getTripByBookingId(bookingId);
+            return ResponseEntity.ok(tripService.updateTripStatus(trip.getId(), status));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PostMapping("/{id}/pulse")
     public Mono<ResponseEntity<Void>> locationPulse(@PathVariable UUID id, @RequestBody LocationUpdate update) {
         String key = "trip:" + id + ":location";

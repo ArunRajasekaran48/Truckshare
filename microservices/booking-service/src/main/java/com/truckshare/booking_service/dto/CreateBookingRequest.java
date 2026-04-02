@@ -18,5 +18,7 @@ public class CreateBookingRequest {
     private Double allocatedVolume;
     private Double allocatedLength;
     private String businessUserId;
+    private UUID boardingPointId;
+    private UUID droppingPointId;
 }
 

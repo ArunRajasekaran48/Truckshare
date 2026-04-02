@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
@@ -40,6 +41,29 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidTruckStatusException.class)
     public ResponseEntity<ErrorResponse> handleInvalidTruckStatus(InvalidTruckStatusException ex, HttpServletRequest request) {
         return buildResponse(HttpStatus.BAD_REQUEST, "Invalid Truck Status", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(InvalidDriverException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidDriver(InvalidDriverException ex, HttpServletRequest request) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "Invalid Driver", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(DriverAlreadyAssignedException.class)
+    public ResponseEntity<ErrorResponse> handleDriverAlreadyAssigned(DriverAlreadyAssignedException ex, HttpServletRequest request) {
+        return buildResponse(HttpStatus.CONFLICT, "Driver Already Assigned", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<ErrorResponse> handleFeignException(FeignException ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.resolve(ex.status());
+        if (status == null) status = HttpStatus.INTERNAL_SERVER_ERROR;
+        
+        String message = "Internal service communication error";
+        if (ex instanceof feign.FeignException.NotFound) {
+            message = "The referenced user or resource was not found in the remote service.";
+        }
+        
+        return buildResponse(status, "Service Communication Error", message, request);
     }
     private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String error, String message,
                                                         HttpServletRequest request) {

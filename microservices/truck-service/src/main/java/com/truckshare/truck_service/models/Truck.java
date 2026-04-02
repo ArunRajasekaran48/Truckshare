@@ -3,6 +3,8 @@ package com.truckshare.truck_service.models;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -51,10 +53,16 @@ public class Truck {
     private Double pricePerKg;
     private Double pricePerLength;
 
+    private String driverId;
+    private String driverName;
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
     private TruckStatus status = TruckStatus.AVAILABLE;
+
+    @OneToMany(mappedBy = "truck", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<TruckPoint> points = new ArrayList<>();
 
     @CreationTimestamp
     private Instant createdAt;

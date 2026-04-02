@@ -30,4 +30,15 @@ public interface TruckClient {
             @RequestParam("weight") double weight,
             @RequestParam("volume") double volume,
             @RequestParam("length") double length);
+
+    @GetMapping("/trucks/getTrucksByOwner")
+    java.util.List<TruckResponsedto> getTrucksByOwner(
+            @RequestHeader("UserId") String ownerId,
+            @RequestHeader("UserRole") String role);
+
+    @GetMapping("/trucks/assigned-to/{driverId}")
+    TruckResponsedto getTruckByDriverId(@PathVariable("driverId") String driverId);
+
+    @GetMapping("/trucks/{id}")
+    TruckResponsedto getTruckById(@PathVariable("id") UUID id);
 }

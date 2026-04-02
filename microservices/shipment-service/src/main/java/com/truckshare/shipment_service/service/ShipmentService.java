@@ -67,6 +67,13 @@ public class ShipmentService {
         return ShipmentMapper.toDto(shipment);
     }
 
+    public java.util.List<ShipmentResponseDto> getAllShipmentsByUser(String businessUserId) {
+        return shipmentRepository.findByBusinessUserId(businessUserId)
+                .stream()
+                .map(ShipmentMapper::toDto)
+                .toList();
+    }
+
     public void updateShipmentStatus(UUID id, ShipmentStatus status) {
         Shipment shipment = shipmentRepository.findById(id)
                 .orElseThrow(() -> new ShipmentNotFoundException("Shipment not found with id: " + id));

@@ -39,7 +39,9 @@ public class UserController {
                     new UsernamePasswordAuthenticationToken(loginRequest.getUserId(), loginRequest.getPassword()));
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             String token = jwtUtil.generateToken(userDetails);
-            return ResponseEntity.ok(new LoginResponsedto(token, "Bearer"));
+            
+            User user = userService.getUserByUserId(loginRequest.getUserId());
+            return ResponseEntity.ok(new LoginResponsedto(token, "Bearer", user.getRole().name()));
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage()); 
         }
@@ -53,5 +55,10 @@ public class UserController {
     public ResponseEntity<User> getUserByUserId(@PathVariable String userId) {
         User user = userService.getUserByUserId(userId);
         return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/role/{role}")
+    public ResponseEntity<List<User>> getUsersByRole(@PathVariable com.truckshare.user_service.entity.UserRole role) {
+        return ResponseEntity.ok(userService.getUsersByRole(role));
     }
 }

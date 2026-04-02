@@ -40,7 +40,11 @@ public class ShipmentTruck {
     @Column(nullable = false)
     private String businessUserId;
 
+    private UUID boardingPointId;
+    private UUID droppingPointId;
+
     // Payment fields
+    @Builder.Default
     private Boolean paymentConfirmed = false;
 
     @Column(length = 100)

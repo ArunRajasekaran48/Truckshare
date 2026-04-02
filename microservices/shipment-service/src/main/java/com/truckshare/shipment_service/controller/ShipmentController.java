@@ -40,6 +40,17 @@ public class ShipmentController {
         return ResponseEntity.ok(shipment);
     }
 
+    @GetMapping
+    public ResponseEntity<java.util.List<ShipmentResponseDto>> getAllShipments(
+            @RequestHeader("UserId") String businessUserId,
+            @RequestHeader("UserRole") String role) {
+        if (!role.equals("BUSINESS_USER")) {
+            throw new UnauthorizedShipmentAccessException("Only business users can view shipments");
+        }
+        java.util.List<ShipmentResponseDto> shipments = shipmentService.getAllShipmentsByUser(businessUserId);
+        return ResponseEntity.ok(shipments);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<ShipmentResponseDto> updateShipment(
             @RequestHeader("UserId") String businessUserId,

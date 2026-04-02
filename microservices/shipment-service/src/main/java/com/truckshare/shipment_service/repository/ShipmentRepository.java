@@ -9,4 +9,5 @@ import com.truckshare.shipment_service.entity.Shipment;
 
 public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
     Optional<Shipment>findById(UUID id);
+    java.util.List<Shipment> findByBusinessUserId(String businessUserId);
 }

@@ -56,6 +56,12 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.FORBIDDEN, "Shipment Ownership", ex.getMessage(), request);
     }
 
+    @ExceptionHandler(InvalidPointSelectionException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPointSelection(InvalidPointSelectionException ex,
+                                                                     HttpServletRequest request) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "Invalid Point Selection", ex.getMessage(), request);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex,
                                                                 HttpServletRequest request) {

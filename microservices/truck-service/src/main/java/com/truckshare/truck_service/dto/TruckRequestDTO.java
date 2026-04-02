@@ -1,5 +1,7 @@
 package com.truckshare.truck_service.dto;
 
+import java.util.List;
+import java.util.ArrayList;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,4 +29,6 @@ public class TruckRequestDTO {
 	private String status;
 	// This will be injected from JWT in the controller
 	private String ownerId;
+
+    private List<TruckPointDTO> points = new ArrayList<>();
 }

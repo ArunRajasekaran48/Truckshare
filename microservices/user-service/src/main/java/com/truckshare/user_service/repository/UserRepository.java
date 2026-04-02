@@ -19,4 +19,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
     
     Optional<User> findByUserId(String userId);
+
+    java.util.List<User> findByRole(com.truckshare.user_service.entity.UserRole role);
 }

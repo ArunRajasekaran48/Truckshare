@@ -8,6 +8,9 @@ import com.truckshare.booking_service.exception.BookingAlreadyPaidException;
 import com.truckshare.booking_service.exception.BookingNotFoundException;
 import com.truckshare.booking_service.exception.NonSplittableShipmentException;
 import com.truckshare.booking_service.exception.ShipmentAlreadyBookedException;
+import com.truckshare.booking_service.dto.TruckPointFeignDto;
+import com.truckshare.booking_service.dto.TruckResponsedto;
+import com.truckshare.booking_service.exception.InvalidPointSelectionException;
 import com.truckshare.booking_service.exception.ShipmentOwnershipException;
 import com.truckshare.booking_service.mapper.BookingMapper;
 import com.truckshare.booking_service.repository.BookingRepository;
@@ -18,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +46,9 @@ public class BookingService {
         validateShipmentOwnership(request, shipment);
         validateShipmentStatus(shipment);
         validateAllocatedAmounts(request, shipment);
+
+        TruckResponsedto truck = truckClient.getTruckById(request.getTruckId());
+        validateBoardingDroppingPoints(request, truck);
 
         ShipmentTruck booking = BookingMapper.toEntity(request);
         booking.setCreatedAt(Instant.now());
@@ -76,6 +83,53 @@ public class BookingService {
         }
 
         return BookingMapper.toResponse(saved);
+    }
+
+    private void validateBoardingDroppingPoints(CreateBookingRequest request, TruckResponsedto truck) {
+        if (truck == null) {
+            throw new InvalidPointSelectionException("Truck not found.");
+        }
+        List<TruckPointFeignDto> pts = truck.getPoints();
+        if (pts == null) {
+            pts = List.of();
+        }
+        boolean hasBoarding = pts.stream().anyMatch(p -> "BOARDING".equalsIgnoreCase(p.getType()));
+        boolean hasDropping = pts.stream().anyMatch(p -> "DROPPING".equalsIgnoreCase(p.getType()));
+
+        if (!hasBoarding && !hasDropping) {
+            if (request.getBoardingPointId() != null || request.getDroppingPointId() != null) {
+                throw new InvalidPointSelectionException("This truck has no boarding/dropping stops defined.");
+            }
+            return;
+        }
+
+        if (hasBoarding) {
+            if (request.getBoardingPointId() == null) {
+                throw new InvalidPointSelectionException("Select a boarding point for this truck.");
+            }
+            boolean match = pts.stream()
+                    .anyMatch(p -> "BOARDING".equalsIgnoreCase(p.getType())
+                            && Objects.equals(request.getBoardingPointId(), p.getId()));
+            if (!match) {
+                throw new InvalidPointSelectionException("Invalid boarding point for this truck.");
+            }
+        } else if (request.getBoardingPointId() != null) {
+            throw new InvalidPointSelectionException("This truck has no boarding stops.");
+        }
+
+        if (hasDropping) {
+            if (request.getDroppingPointId() == null) {
+                throw new InvalidPointSelectionException("Select a dropping point for this truck.");
+            }
+            boolean match = pts.stream()
+                    .anyMatch(p -> "DROPPING".equalsIgnoreCase(p.getType())
+                            && Objects.equals(request.getDroppingPointId(), p.getId()));
+            if (!match) {
+                throw new InvalidPointSelectionException("Invalid dropping point for this truck.");
+            }
+        } else if (request.getDroppingPointId() != null) {
+            throw new InvalidPointSelectionException("This truck has no dropping stops.");
+        }
     }
 
     private void validateShipmentOwnership(CreateBookingRequest request, ShipmentResponseDto shipment) {
@@ -268,8 +322,25 @@ public class BookingService {
         log.info("Successfully expired zombie booking: {}", booking.getId());
     }
 
-    public List<ShipmentTruckResponse> getAllBookings() {
-        List<ShipmentTruck> bookings = bookingRepository.findAll();
+    public List<ShipmentTruckResponse> getAllBookings(String userId, String role) {
+        List<ShipmentTruck> bookings;
+        if ("BUSINESS_USER".equals(role)) {
+            bookings = bookingRepository.findByBusinessUserId(userId);
+        } else if ("TRUCK_OWNER".equals(role)) {
+            List<TruckResponsedto> trucks = truckClient.getTrucksByOwner(userId, role);
+            if (trucks == null || trucks.isEmpty()) {
+                return List.of();
+            }
+            List<UUID> truckIds = trucks.stream().map(TruckResponsedto::getId).toList();
+            bookings = bookingRepository.findByTruckIdIn(truckIds);
+        } else if ("DRIVER".equals(role)) {
+            TruckResponsedto truck = truckClient.getTruckByDriverId(userId);
+            if (truck == null) return List.of();
+            bookings = bookingRepository.findByTruckId(truck.getId());
+        } else {
+            return List.of(); // Empty for unknown roles
+        }
+        
         return bookings.stream()
                 .map(BookingMapper::toResponse)
                 .toList();

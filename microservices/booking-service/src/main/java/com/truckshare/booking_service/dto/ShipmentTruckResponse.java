@@ -19,8 +19,11 @@ public class ShipmentTruckResponse {
     private Double allocatedWeight;
     private Double allocatedVolume;
     private Double allocatedLength;
+    private String businessUserId;
     private Boolean paymentConfirmed;
     private String paymentReference;
     private Instant paymentConfirmedAt;
     private Instant createdAt;
+    private UUID boardingPointId;
+    private UUID droppingPointId;
 }

@@ -1,8 +1,12 @@
 package com.truckshare.booking_service.dto;
 
 import lombok.Data;
-import java.util.UUID;
+
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 @Data
 public class TruckResponsedto {
 	private UUID id;
@@ -16,6 +20,9 @@ public class TruckResponsedto {
 	private Double availableWeight;
 	private Double availableVolume;
 	private String status;
+	private String driverId;
+	private String driverName;
     private Instant createdAt ;
     private Instant updatedAt ;
+    private List<TruckPointFeignDto> points = new ArrayList<>();
 }

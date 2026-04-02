@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import java.util.UUID;
+import java.util.List;
+import java.util.ArrayList;
 import java.time.Instant;
 @Data
 @Getter
@@ -29,6 +31,10 @@ public class TruckResponseDTO {
 	private Double pricePerKg;
 	private Double pricePerLength;
 	private String status;
+	private String driverId;
+	private String driverName;
     private Instant createdAt ;
     private Instant updatedAt ;
+    private List<TruckPointDTO> points = new ArrayList<>();
+    private Double totalEstimatedPrice;
 }

@@ -99,4 +99,10 @@ public class TripService {
         return tripRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Trip not found"));
     }
+
+    @Transactional(readOnly = true)
+    public Trip getTripByBookingId(UUID bookingId) {
+        return tripRepository.findByBookingId(bookingId)
+                .orElseThrow(() -> new RuntimeException("Trip not found for booking: " + bookingId));
+    }
 }

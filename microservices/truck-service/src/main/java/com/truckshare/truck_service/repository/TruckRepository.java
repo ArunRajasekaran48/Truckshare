@@ -28,4 +28,5 @@ public interface TruckRepository extends JpaRepository<Truck, UUID> {
 
     List<Truck> findByStatus(TruckStatus status);
     List<Truck> findByFromLocationAndToLocationAndStatus(String from, String to, TruckStatus status);
+    List<Truck> findByDriverId(String driverId);
 }

@@ -23,4 +23,7 @@ public interface BookingRepository extends JpaRepository<ShipmentTruck, UUID> {
     List<com.truckshare.booking_service.entity.ShipmentTruck> findAllByPaymentConfirmedFalseAndCreatedAtBefore(
             java.time.Instant expiryTime);
 
+    List<ShipmentTruck> findByBusinessUserId(String businessUserId);
+    
+    List<ShipmentTruck> findByTruckIdIn(List<UUID> truckIds);
 }

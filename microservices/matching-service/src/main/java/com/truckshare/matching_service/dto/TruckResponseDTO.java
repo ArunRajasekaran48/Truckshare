@@ -1,8 +1,12 @@
 package com.truckshare.matching_service.dto;
 
 import lombok.Data;
-import java.util.UUID;
+
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 @Data
 public class TruckResponseDTO {
 	private UUID id;
@@ -23,4 +27,5 @@ public class TruckResponseDTO {
 	private String status;
     private Instant createdAt ;
     private Instant updatedAt ;
+    private List<TruckPointDTO> points = new ArrayList<>();
 }
