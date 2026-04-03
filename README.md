@@ -10,10 +10,12 @@ Lower shipping cost and waste by matching available truck space with shipment ne
 
 ## Architecture
 
+- **Frontend**: React SPA powered by Vite, Tailwind CSS, and Leaflet Maps
 - **Microservices**: Spring Boot (Java) with Eureka service discovery
 - **Database**: PostgreSQL (one database per service)
 - **Messaging**: RabbitMQ (event-driven, async communication via Topic Exchange)
-- **Sync Communication**: OpenFeign (used only for strict read queries, e.g., fetching shipment details during booking validation)
+- **Observability**: Distributed Tracing with Micrometer and Zipkin
+- **Sync Communication**: OpenFeign (used only for strict read queries)
 - **Gateway**: API Gateway for routing and centralized authorization
 - **Resilience**: Transactional Outbox Pattern to guarantee at-least-once event delivery
 
@@ -24,10 +26,12 @@ Lower shipping cost and waste by matching available truck space with shipment ne
 | `api-gateway` | 9191 | Routes all requests, handles auth headers |
 | `service-registry` | 8761 | Eureka service discovery |
 | `user-service` | 8080 | User management & JWT authentication |
-| `truck-service` | 8081 | Truck registration & capacity management |
+| `truck-service` | 8081 | Truck registration, fleet management & driver assignment |
 | `shipment-service` | 8082 | Shipment creation & status tracking |
 | `matching-service` | 8083 | Automatically matches shipments to available trucks |
-| `booking-service` | 8084 | Booking proposals & payment acknowledgment |
+| `booking-service` | 8084 | Booking proposals, split shipments & payment acknowledgment |
+| `trip-service` | 8085 | Manages trips, stopovers, and boarding/dropping points |
+| `notification-service` | 8086 | Real-time and async user notifications |
 
 ## Event-Driven Flow (RabbitMQ)
 
@@ -66,13 +70,13 @@ To ensure zero event loss (even if RabbitMQ is temporarily down), all producer s
 
 ## Key Features
 
-- Truck owners list trucks with route, available weight/volume.
-- Businesses create shipment requests specifying pickup, drop-off, weight, and volume.
-- Supports **non-split** (single truck) and **split** (multiple trucks) shipments.
-- Automatic truck matching — when a shipment is created, `matching-service` finds suitable trucks in the background.
-- Booking flow: view matched trucks → propose booking → acknowledge payment → shipment marked BOOKED.
-- Shipment status lifecycle: **PENDING → MATCHED → PARTIALLY_BOOKED → BOOKED**.
-- Truck capacity is automatically deducted once a booking is confirmed.
+- **Truck Fleet Management**: Owners can list trucks and assign specific drivers to them.
+- **Stopovers**: Support for Boarding and Dropping points (stopovers) for fine-grained shipment tracking.
+- **Split Shipments**: Single shipments can be split across multiple trucks (isSplit: true).
+- **Automated Matching**: Background engine finds matches based on weight, volume, and route.
+- **Standardized UI**: Modern React dashboard with centralized error handling and toast notifications.
+- **Distributed Tracing**: End-to-end request tracking across all microservices using Zipkin.
+- **Transactional Outbox**: Guarantees event delivery even if the message broker is temporarily unavailable.
 
 ## Who It Helps
 - **Truck owners** — earn from empty or partly empty trips.
@@ -125,15 +129,21 @@ POST /bookings/{bookingId}/acknowledge-payment/{paymentReference}
 
 **Prerequisites:**
 - Java 21+
+- Node.js (for frontend)
 - PostgreSQL running on `localhost:5432`
-- RabbitMQ running on `localhost:5672` (e.g., via Docker: `docker run -d -p 5672:5672 -p 15672:15672 rabbitmq:3-management`)
+- RabbitMQ running on `localhost:5672`
+- Zipkin running on `localhost:9411` (e.g., `docker run -d -p 9411:9411 openzipkin/zipkin`)
 
 **Start order:**
 1. `service-registry`
 2. `api-gateway`
-3. `truck-service`, `shipment-service`, `booking-service`, `matching-service`
-
-> Hibernate (`ddl-auto=update`) will auto-create all required tables, including the `outbox_events` table, on first startup.
+3. All backend microservices (`user`, `truck`, `shipment`, `matching`, `booking`, `trip`, `notification`)
+4. **Frontend**:
+   ```bash
+   cd client
+   npm install
+   npm run dev
+   ```
 
 ## FAQ
 
