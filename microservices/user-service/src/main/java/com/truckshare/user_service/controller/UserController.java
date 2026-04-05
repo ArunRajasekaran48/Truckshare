@@ -1,6 +1,7 @@
 package com.truckshare.user_service.controller;
 import com.truckshare.user_service.dto.RegisterRequestdto;
 import com.truckshare.user_service.dto.RegisterResponsedto;
+import com.truckshare.user_service.entity.DriverAvailability;
 import com.truckshare.user_service.entity.User;
 import com.truckshare.user_service.dto.LoginRequestdto;
 import com.truckshare.user_service.dto.LoginResponsedto;
@@ -60,5 +61,24 @@ public class UserController {
     @GetMapping("/role/{role}")
     public ResponseEntity<List<User>> getUsersByRole(@PathVariable com.truckshare.user_service.entity.UserRole role) {
         return ResponseEntity.ok(userService.getUsersByRole(role));
+    }
+
+    @PutMapping("/{userId}/driver-availability")
+    public ResponseEntity<User> updateDriverAvailability(
+            @PathVariable String userId,
+            @RequestParam DriverAvailability status,
+            @RequestHeader("UserId") String requesterUserId,
+            @RequestHeader("UserRole") String requesterRole) {
+        if (!requesterUserId.equals(userId) || !requesterRole.contains("DRIVER")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok(userService.updateDriverAvailability(userId, status));
+    }
+
+    @PutMapping("/internal/{userId}/driver-availability")
+    public ResponseEntity<User> updateDriverAvailabilityInternal(
+            @PathVariable String userId,
+            @RequestParam DriverAvailability status) {
+        return ResponseEntity.ok(userService.updateDriverAvailability(userId, status));
     }
 }

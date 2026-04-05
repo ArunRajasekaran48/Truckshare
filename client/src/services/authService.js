@@ -34,6 +34,13 @@ export const authService = {
     return response.data;
   },
 
+  async updateDriverAvailability(userId, status) {
+    const response = await api.put(`/users/${userId}/driver-availability`, null, {
+      params: { status },
+    });
+    return response.data;
+  },
+
   logout() {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userId');

@@ -18,12 +18,12 @@ export function TruckCard({ truck, actions = [], onClick, compact = false }) {
           <p className="font-semibold text-gray-900 truncate">{truck.model}</p>
           <div className="flex items-center gap-2 mt-0.5">
             <p className="text-xs text-gray-400 font-mono uppercase tracking-wider">{truck.licensePlate}</p>
-            {truck.driverName && (
+            {(truck.driverId || truck.driverName) && (
               <div className="flex items-center gap-1 px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px] font-medium border border-blue-100">
                 <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                 </svg>
-                {truck.driverName}
+                {truck.driverId || truck.driverName}
               </div>
             )}
           </div>

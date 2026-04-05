@@ -2,6 +2,7 @@ package com.truckshare.user_service.mapper;
 
 import com.truckshare.user_service.dto.RegisterRequestdto;
 import com.truckshare.user_service.dto.RegisterResponsedto;
+import com.truckshare.user_service.entity.DriverAvailability;
 import com.truckshare.user_service.entity.User;
 import com.truckshare.user_service.entity.UserRole;
 
@@ -23,6 +24,7 @@ public class UserMapper {
         user.setEmail(registerRequestdto.getEmail());
         user.setPhone(registerRequestdto.getPhone());
         user.setRole(UserRole.valueOf(registerRequestdto.getRole().toUpperCase()));
+        user.setDriverAvailability(DriverAvailability.AVAILABLE);
         user.setCreatedAt(Instant.now());
         user.setUpdatedAt(Instant.now());
         return user;
@@ -63,6 +65,9 @@ public class UserMapper {
         user.setEmail(registerRequestdto.getEmail());
         user.setPhone(registerRequestdto.getPhone());
         user.setRole(UserRole.valueOf(registerRequestdto.getRole().toUpperCase()));
+        if (user.getDriverAvailability() == null) {
+            user.setDriverAvailability(DriverAvailability.AVAILABLE);
+        }
         user.setUpdatedAt(Instant.now());
         
         return user;

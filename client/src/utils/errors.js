@@ -7,7 +7,15 @@ export function formatBackendError(error) {
 
   const status = error.response?.status;
   const data = error.response?.data;
+  const path = data?.path || '';
   const rawMessage = data?.message || data?.error || error.message || '';
+
+  // Endpoint-specific handling for driver availability updates
+  if (path.includes('/driver-availability')) {
+    if (status === 401) return 'Your session has expired. Please log in again to update driver status.';
+    if (status === 403) return 'You can only update your own driver status using a DRIVER account.';
+    if (status === 400) return 'Invalid driver status. Use AVAILABLE, ON_TRIP, or UNAVAILABLE.';
+  }
 
   // 1. Handle common status code defaults
   if (status === 401) return 'Session expired. Please log in again.';

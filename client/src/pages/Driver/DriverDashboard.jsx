@@ -1,22 +1,44 @@
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Layout } from '@/components/Common/Layout';
 import { StatCard } from '@/components/Dashboard/StatCard';
 import { BookingCard } from '@/components/Booking/BookingCard';
-import { TripRoutePreview } from '@/components/Tracking/TripRoutePreview';
 import { LoadingSpinner } from '@/components/Common/LoadingSpinner';
 import { EmptyState } from '@/components/Common/EmptyState';
+import { StatusBadge } from '@/components/Common/StatusBadge';
 import { TruckCard } from '@/components/Truck/TruckCard';
 import { useAuth } from '@/hooks/useAuth';
 import { useTruckByDriver } from '@/hooks/useTruck';
 import { useBookings } from '@/hooks/useBooking';
 import { useShipment } from '@/hooks/useShipment';
+import { authService } from '@/services/authService';
+import { UIContext } from '@/context/UIContext';
 
 export function DriverDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useContext(UIContext);
+  const qc = useQueryClient();
   const { data: truck, isLoading: truckLoading } = useTruckByDriver(user?.userId);
   const { data: bookings = [], isLoading: bookingsLoading } = useBookings();
+  const { data: profile } = useQuery({
+    queryKey: ['users', user?.userId],
+    queryFn: () => authService.getUser(user.userId),
+    enabled: !!user?.userId,
+  });
+
+  const availabilityMutation = useMutation({
+    mutationFn: (status) => authService.updateDriverAvailability(user.userId, status),
+    onSuccess: (_, status) => {
+      qc.invalidateQueries({ queryKey: ['users', user?.userId] });
+      qc.invalidateQueries({ queryKey: ['users', 'drivers'] });
+      toast.success(`Driver status updated to ${status.replace('_', ' ')}`);
+    },
+    onError: (e) => {
+      toast.error(e.message || 'Failed to update driver status');
+    },
+  });
 
   const confirmed = bookings.filter((b) => b.paymentConfirmed);
   const pending = bookings.filter((b) => !b.paymentConfirmed);
@@ -47,6 +69,33 @@ export function DriverDashboard() {
           <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">
             This is a quick route summary. For the live moving truck map and GPS sharing, open <strong>Tracking</strong> on a booking.
           </p>
+        </div>
+
+        <div className="card p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-gray-900">Driver Availability</p>
+              <p className="text-xs text-gray-500 mt-1">Set your current assignment status so owners cannot assign you while you are on a trip.</p>
+            </div>
+            <StatusBadge status={profile?.driverAvailability || 'AVAILABLE'} />
+          </div>
+          <div className="flex flex-wrap gap-2 mt-3">
+            {['AVAILABLE', 'ON_TRIP', 'UNAVAILABLE'].map((status) => (
+              <button
+                key={status}
+                type="button"
+                disabled={availabilityMutation.isPending || (profile?.driverAvailability || 'AVAILABLE') === status}
+                onClick={() => availabilityMutation.mutate(status)}
+                className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
+                  (profile?.driverAvailability || 'AVAILABLE') === status
+                    ? 'bg-teal-600 text-white border-teal-600'
+                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                {status.replace('_', ' ')}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

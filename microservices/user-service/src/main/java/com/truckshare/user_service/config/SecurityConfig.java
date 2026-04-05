@@ -26,7 +26,7 @@ public class SecurityConfig {
                 .logout(logout -> logout.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/users/register", "/users/login", "/actuator/**", "/users/getAllUsers", "/users/role/**", "/users/*").permitAll()
+                    .requestMatchers("/users/register", "/users/login", "/actuator/**", "/users/getAllUsers", "/users/role/**", "/users/*", "/users/*/driver-availability", "/users/internal/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider);

@@ -2,7 +2,9 @@ package com.truckshare.user_service.service;
 
 import com.truckshare.user_service.dto.RegisterRequestdto;
 import com.truckshare.user_service.dto.RegisterResponsedto;
+import com.truckshare.user_service.entity.DriverAvailability;
 import com.truckshare.user_service.entity.User;
+import com.truckshare.user_service.entity.UserRole;
 import com.truckshare.user_service.exception.UserAlreadyExistsException;
 import com.truckshare.user_service.exception.UserNotFoundException;
 import com.truckshare.user_service.mapper.UserMapper;
@@ -61,5 +63,17 @@ public class UserService {
 
     public List<User> getUsersByRole(com.truckshare.user_service.entity.UserRole role) {
         return userRepository.findByRole(role);
+    }
+
+    public User updateDriverAvailability(String userId, DriverAvailability availability) {
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
+
+        if (user.getRole() != UserRole.DRIVER) {
+            throw new IllegalArgumentException("Only DRIVER users can have driver availability updated.");
+        }
+
+        user.setDriverAvailability(availability);
+        return userRepository.save(user);
     }
 }

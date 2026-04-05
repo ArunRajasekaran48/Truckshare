@@ -206,6 +206,11 @@ public class TruckService {
         if (user == null || !"DRIVER".equals(user.getRole())) {
             throw new InvalidDriverException("User " + driverId + " is not a registered driver.");
         }
+        if (!"AVAILABLE".equals(user.getDriverAvailability())) {
+            throw new InvalidDriverException(
+                "Driver " + driverId + " is currently " + user.getDriverAvailability() + ". Only AVAILABLE drivers can be assigned."
+            );
+        }
 
         // 2. Strict Check: Driver cannot be assigned to ANY other truck
         List<Truck> assignments = truckRepository.findByDriverId(driverId);

@@ -1,6 +1,7 @@
 package com.truckshare.truck_service.services.listener;
 
 import com.truckshare.truck_service.config.RabbitMQConfig;
+import com.truckshare.truck_service.clients.UserClient;
 import com.truckshare.truck_service.dto.TripStatus;
 import com.truckshare.truck_service.dto.TripStatusUpdatedEvent;
 import com.truckshare.truck_service.models.TruckStatus;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TripStatusUpdatedEventListener {
 
     private final TruckRepository truckRepository;
+    private final UserClient userClient;
 
     @RabbitListener(bindings = @QueueBinding(
             value = @Queue(value = "truck.trip.status.updated.queue", durable = "true"),
@@ -37,6 +39,18 @@ public class TripStatusUpdatedEventListener {
                 truckRepository.save(truck);
                 log.info("Updated truck: {} status to: {}", event.truckId(), newStatus);
             }
+
+            if (truck.getDriverId() != null && !truck.getDriverId().isBlank()) {
+                try {
+                    String availability = mapToDriverAvailability(event.status());
+                    if (availability != null) {
+                        userClient.updateDriverAvailability(truck.getDriverId(), availability);
+                        log.info("Updated driver: {} availability to: {}", truck.getDriverId(), availability);
+                    }
+                } catch (Exception e) {
+                    log.warn("Failed to update driver availability for driver: {}", truck.getDriverId(), e);
+                }
+            }
         }, () -> log.warn("Truck not found for status update: {}", event.truckId()));
     }
 
@@ -46,6 +60,13 @@ public class TripStatusUpdatedEventListener {
             case COMPLETED -> TruckStatus.AVAILABLE;
             case CANCELLED -> TruckStatus.AVAILABLE;
             default -> null; // PLANNED and LOADING don't change the truck state (it's already occupied/full)
+        };
+    }
+
+    private String mapToDriverAvailability(TripStatus tripStatus) {
+        return switch (tripStatus) {
+            case IN_TRANSIT, LOADING, PLANNED -> "ON_TRIP";
+            case COMPLETED, CANCELLED -> "AVAILABLE";
         };
     }
 }

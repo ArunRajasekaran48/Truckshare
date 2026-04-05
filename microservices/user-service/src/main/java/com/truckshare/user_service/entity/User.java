@@ -38,6 +38,10 @@ public class User {
     @Column(nullable = false)
     private UserRole role;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private DriverAvailability driverAvailability;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private Instant createdAt;

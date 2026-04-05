@@ -45,6 +45,8 @@ export const STATUS_COLORS = {
   LOADING: 'bg-yellow-100 text-yellow-700 border-yellow-200',
   // Truck statuses
   AVAILABLE: 'bg-green-100 text-green-700 border-green-200',
+  ON_TRIP: 'bg-teal-100 text-teal-700 border-teal-200',
+  UNAVAILABLE: 'bg-gray-100 text-gray-600 border-gray-200',
   MAINTENANCE: 'bg-orange-100 text-orange-700 border-orange-200',
   INACTIVE: 'bg-gray-100 text-gray-500 border-gray-200',
 };
