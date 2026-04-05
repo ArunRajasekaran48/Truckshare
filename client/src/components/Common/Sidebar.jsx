@@ -25,10 +25,10 @@ function NavItem({ to, label, icon, onClick }) {
       to={to}
       onClick={onClick}
       className={({ isActive }) =>
-        `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+        `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
           isActive
-            ? 'bg-teal-50 text-teal-700'
-            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+            ? 'bg-teal-50 text-teal-700 border-l-2 border-teal-600'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
         }`
       }
     >
@@ -45,14 +45,14 @@ export function Sidebar({ isOpen, onClose }) {
   const content = (
     <div className="flex flex-col h-full">
       {/* Logo area (desktop) */}
-      <div className="hidden lg:flex items-center gap-2 px-4 py-5 border-b border-gray-100">
-        <span className="text-2xl">🚛</span>
-        <span className="font-bold text-gray-900">TruckShare</span>
+      <div className="hidden lg:flex items-center gap-3 px-5 py-6 border-b border-slate-200">
+        <span className="text-2xl font-bold">🚛</span>
+        <span className="font-bold text-slate-900">TruckShare</span>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mb-2">
+      <nav className="flex-1 px-3 py-5 space-y-1">
+        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest px-3 mb-3">
           {isTruckOwner ? 'Truck Owner' : isDriver ? 'Driver' : 'Business'}
         </p>
         {navItems.map((item) => (
@@ -66,7 +66,7 @@ export function Sidebar({ isOpen, onClose }) {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex lg:flex-col w-56 bg-white border-r border-gray-200 fixed left-0 top-0 h-full z-20">
+      <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-slate-200 fixed left-0 top-0 h-full z-20">
         {content}
       </aside>
 

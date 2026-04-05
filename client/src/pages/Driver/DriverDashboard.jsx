@@ -53,43 +53,43 @@ export function DriverDashboard() {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Driver Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h1 className="text-3xl font-bold text-slate-900">Driver Dashboard</h1>
+          <p className="text-sm text-slate-600 mt-2">
             View your assigned truck and active trips
           </p>
         </div>
 
-        <div className="card p-4 border-teal-100 bg-gradient-to-r from-teal-50/90 to-white">
-          <h2 className="font-semibold text-gray-900 text-sm flex items-center gap-2">
+        <div className="card p-5 border border-teal-200 bg-gradient-to-r from-teal-50/60 to-white">
+          <h2 className="font-bold text-slate-900 text-sm flex items-center gap-2">
             <span aria-hidden>📡</span>
             Route (quick view)
           </h2>
-          <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">
+          <p className="text-xs text-slate-600 mt-2 leading-relaxed">
             This is a quick route summary. For the live moving truck map and GPS sharing, open <strong>Tracking</strong> on a booking.
           </p>
         </div>
 
-        <div className="card p-4">
+        <div className="card p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold text-gray-900">Driver Availability</p>
-              <p className="text-xs text-gray-500 mt-1">Set your current assignment status so owners cannot assign you while you are on a trip.</p>
+              <p className="text-sm font-bold text-slate-900">Driver Availability</p>
+              <p className="text-xs text-slate-600 mt-1.5">Set your current assignment status so owners cannot assign you while you are on a trip.</p>
             </div>
             <StatusBadge status={profile?.driverAvailability || 'AVAILABLE'} />
           </div>
-          <div className="flex flex-wrap gap-2 mt-3">
+          <div className="flex flex-wrap gap-2 mt-4">
             {['AVAILABLE', 'ON_TRIP', 'UNAVAILABLE'].map((status) => (
               <button
                 key={status}
                 type="button"
                 disabled={availabilityMutation.isPending || (profile?.driverAvailability || 'AVAILABLE') === status}
                 onClick={() => availabilityMutation.mutate(status)}
-                className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
+                className={`px-3.5 py-2 text-xs font-semibold rounded-full border transition-colors ${
                   (profile?.driverAvailability || 'AVAILABLE') === status
-                    ? 'bg-teal-600 text-white border-teal-600'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+                    ? 'bg-teal-600 text-white border-teal-600 shadow-md'
+                    : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
                 }`}
               >
                 {status.replace('_', ' ')}
@@ -106,12 +106,12 @@ export function DriverDashboard() {
         </div>
 
         {bookings.length > 0 && mapShipment?.fromLocation && mapShipment?.toLocation && (
-          <div className="card p-4">
-            <h2 className="font-semibold text-gray-900">Current trip route</h2>
-            <p className="text-xs text-gray-500 mt-0.5 mb-3">
-              From <span className="font-medium text-gray-700">{mapShipment.fromLocation}</span> to{' '}
-              <span className="font-medium text-gray-700">{mapShipment.toLocation}</span>
-              <span className="text-gray-400"> · from your current / latest booking</span>
+          <div className="card p-5">
+            <h2 className="font-bold text-slate-900">Current trip route</h2>
+            <p className="text-xs text-slate-600 mt-1.5 mb-4">
+              From <span className="font-semibold text-slate-900">{mapShipment.fromLocation}</span> to{' '}
+              <span className="font-semibold text-slate-900">{mapShipment.toLocation}</span>
+              <span className="text-slate-500"> · from your current / latest booking</span>
             </p>
 
             <div className="rounded-xl border border-slate-200 bg-white px-3 py-3">
@@ -163,8 +163,8 @@ export function DriverDashboard() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-4">
-            <h2 className="font-semibold text-gray-900">Your truck</h2>
+          <div className="lg:col-span-2 space-y-5">
+            <h2 className="text-xl font-bold text-slate-900">Your truck</h2>
             {truckLoading ? (
               <LoadingSpinner text="Loading assignment…" />
             ) : !truck ? (
@@ -178,15 +178,15 @@ export function DriverDashboard() {
             )}
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-gray-900">Recent trips</h2>
+              <h2 className="text-xl font-bold text-slate-900">Recent trips</h2>
               <button
                 type="button"
                 onClick={() => navigate('/bookings')}
-                className="text-sm text-teal-600 hover:underline"
+                className="text-sm font-semibold text-teal-600 hover:text-teal-700"
               >
-                View all
+                View all →
               </button>
             </div>
             {bookingsLoading ? (

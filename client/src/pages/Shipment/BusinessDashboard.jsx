@@ -33,12 +33,12 @@ export function BusinessDashboard() {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Business Dashboard</h1>
-            <p className="text-sm text-gray-500 mt-0.5">Track your shipments and bookings</p>
+            <h1 className="text-3xl font-bold text-slate-900">Business Dashboard</h1>
+            <p className="text-sm text-slate-600 mt-2">Track your shipments and bookings</p>
           </div>
           <button onClick={() => navigate('/shipments/create')} className="btn-primary">
             + New Shipment

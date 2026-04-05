@@ -30,10 +30,10 @@ export function ShipmentListPage() {
 
   return (
     <Layout>
-      <div className="space-y-5">
+      <div className="space-y-7">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-900">My Shipments</h1>
+          <h1 className="text-3xl font-bold text-slate-900">My Shipments</h1>
           <button onClick={() => navigate('/shipments/create')} className="btn-primary">
             + New Shipment
           </button>
@@ -54,10 +54,10 @@ export function ShipmentListPage() {
             <button
               key={tab}
               onClick={() => setFilter(tab)}
-              className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+              className={`shrink-0 px-3.5 py-2 rounded-full text-xs font-semibold border transition-colors ${
                 filter === tab
-                  ? 'bg-teal-600 text-white border-teal-600'
-                  : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                  ? 'bg-teal-600 text-white border-teal-600 shadow-md'
+                  : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
               }`}
             >
               {tab === ALL ? 'All' : tab.replace(/_/g, ' ')}

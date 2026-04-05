@@ -69,12 +69,12 @@ export function TruckOwnerDashboard() {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Page header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Truck Owner Dashboard</h1>
-            <p className="text-sm text-gray-500 mt-0.5">Manage your fleet and bookings</p>
+            <h1 className="text-3xl font-bold text-slate-900">Truck Owner Dashboard</h1>
+            <p className="text-sm text-slate-600 mt-2">Manage your fleet and bookings</p>
           </div>
           <button onClick={() => navigate('/trucks/add')} className="btn-primary">
             + Add Truck
@@ -91,8 +91,8 @@ export function TruckOwnerDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Trucks */}
-          <div className="lg:col-span-2 space-y-4">
-            <h2 className="font-semibold text-gray-900">My Trucks</h2>
+          <div className="lg:col-span-2 space-y-5">
+            <h2 className="text-xl font-bold text-slate-900">My Trucks</h2>
             {trucksLoading ? (
               <LoadingSpinner text="Loading trucks…" />
             ) : trucks.length === 0 ? (
@@ -124,11 +124,11 @@ export function TruckOwnerDashboard() {
           </div>
 
           {/* Bookings */}
-          <div className="space-y-4">
-            <h2 className="font-semibold text-gray-900">
+          <div className="space-y-5">
+            <h2 className="text-xl font-bold text-slate-900">
               Bookings
               {pendingBookings.length > 0 && (
-                <span className="ml-2 inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-500 text-white text-xs font-bold">
+                <span className="ml-3 inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-500 text-white text-xs font-bold">
                   {pendingBookings.length}
                 </span>
               )}

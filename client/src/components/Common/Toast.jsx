@@ -34,13 +34,13 @@ const borders = {
 function Toast({ toast, onDismiss }) {
   return (
     <div
-      className={`flex items-start gap-3 w-80 bg-white shadow-lg rounded-xl px-4 py-3 ${borders[toast.type]} animate-slide-in`}
+      className={`flex items-start gap-3 w-80 bg-white shadow-lg rounded-lg px-4 py-3.5 ${borders[toast.type]} animate-slide-in border border-slate-200`}
     >
       <span className="mt-0.5 shrink-0">{icons[toast.type]}</span>
-      <p className="text-sm text-gray-800 flex-1">{toast.message}</p>
+      <p className="text-sm text-slate-800 flex-1 font-medium">{toast.message}</p>
       <button
         onClick={() => onDismiss(toast.id)}
-        className="text-gray-400 hover:text-gray-600 shrink-0"
+        className="text-slate-400 hover:text-slate-600 shrink-0 transition-colors"
       >
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

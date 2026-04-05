@@ -29,18 +29,18 @@ export function TruckList({ trucks = [], onSelect, view = 'grid', actions = [] }
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Controls */}
-      <div className="flex flex-wrap gap-3 items-center justify-between">
+      <div className="flex flex-wrap gap-4 items-center justify-between">
         <div className="flex gap-2">
           {['ALL', 'AVAILABLE', 'IN_TRANSIT', 'MAINTENANCE'].map((s) => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+              className={`px-3.5 py-2 rounded-full text-xs font-semibold border transition-colors ${
                 statusFilter === s
-                  ? 'bg-teal-600 text-white border-teal-600'
-                  : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                  ? 'bg-teal-600 text-white border-teal-600 shadow-md'
+                  : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
               }`}
             >
               {s === 'ALL' ? 'All' : s.replace('_', ' ')}
@@ -48,12 +48,12 @@ export function TruckList({ trucks = [], onSelect, view = 'grid', actions = [] }
           ))}
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <label className="text-xs text-gray-400">Sort:</label>
+        <div className="flex items-center gap-2 text-sm text-slate-600">
+          <label className="text-xs font-semibold text-slate-500 uppercase">Sort:</label>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="text-xs border border-gray-200 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+            className="text-xs border border-slate-200 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-1 focus:ring-teal-500 font-medium"
           >
             <option value="newest">Newest</option>
             <option value="price">Price ↑</option>

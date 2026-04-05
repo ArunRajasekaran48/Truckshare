@@ -216,10 +216,10 @@ export default function App() {
         <Route
           path="*"
           element={
-            <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-              <span className="text-6xl">🛣️</span>
-              <h1 className="text-4xl font-bold text-gray-900">404</h1>
-              <p className="text-gray-500">This road doesn't lead anywhere.</p>
+            <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-slate-50 px-4">
+              <span className="text-7xl">🛣️</span>
+              <h1 className="text-5xl font-bold text-slate-900">404</h1>
+              <p className="text-slate-600 text-lg">This road doesn't lead anywhere.</p>
               <a href="/" className="btn-primary">Go Home</a>
             </div>
           }

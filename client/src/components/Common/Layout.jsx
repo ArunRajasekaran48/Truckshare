@@ -10,9 +10,9 @@ export function Layout({ children }) {
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main area shifted right on desktop */}
-      <div className="lg:pl-56 flex flex-col min-h-screen">
+      <div className="lg:pl-64 flex flex-col min-h-screen">
         <Header onMenuToggle={() => setSidebarOpen((v) => !v)} />
-        <main className="flex-1 p-4 lg:p-6">{children}</main>
+        <main className="flex-1 p-4 md:p-6 lg:p-8 bg-slate-50">{children}</main>
       </div>
     </div>
   );

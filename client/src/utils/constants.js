@@ -31,24 +31,24 @@ export const TRUCK_STATUS = {
 
 export const STATUS_COLORS = {
   // Shipment & Trip statuses
-  PENDING: 'bg-gray-100 text-gray-700 border-gray-200',
+  PENDING: 'bg-slate-100 text-slate-700 border-slate-200',
   // Booking statuses (booking-service)
-  PROPOSED: 'bg-gray-100 text-gray-700 border-gray-200',
-  MATCHED: 'bg-blue-100 text-blue-700 border-blue-200',
-  PARTIALLY_BOOKED: 'bg-amber-100 text-amber-700 border-amber-200',
-  BOOKED: 'bg-green-100 text-green-700 border-green-200',
-  IN_TRANSIT: 'bg-teal-100 text-teal-700 border-teal-200',
-  DELIVERED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-  COMPLETED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-  CANCELLED: 'bg-red-100 text-red-700 border-red-200',
-  PLANNED: 'bg-indigo-100 text-indigo-700 border-indigo-200',
-  LOADING: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+  PROPOSED: 'bg-slate-100 text-slate-700 border-slate-200',
+  MATCHED: 'bg-blue-50 text-blue-700 border-blue-200',
+  PARTIALLY_BOOKED: 'bg-amber-50 text-amber-700 border-amber-200',
+  BOOKED: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  IN_TRANSIT: 'bg-teal-50 text-teal-700 border-teal-200',
+  DELIVERED: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  COMPLETED: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  CANCELLED: 'bg-red-50 text-red-700 border-red-200',
+  PLANNED: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+  LOADING: 'bg-yellow-50 text-yellow-700 border-yellow-200',
   // Truck statuses
-  AVAILABLE: 'bg-green-100 text-green-700 border-green-200',
-  ON_TRIP: 'bg-teal-100 text-teal-700 border-teal-200',
-  UNAVAILABLE: 'bg-gray-100 text-gray-600 border-gray-200',
-  MAINTENANCE: 'bg-orange-100 text-orange-700 border-orange-200',
-  INACTIVE: 'bg-gray-100 text-gray-500 border-gray-200',
+  AVAILABLE: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  ON_TRIP: 'bg-teal-50 text-teal-700 border-teal-200',
+  UNAVAILABLE: 'bg-slate-100 text-slate-600 border-slate-200',
+  MAINTENANCE: 'bg-orange-50 text-orange-700 border-orange-200',
+  INACTIVE: 'bg-slate-100 text-slate-500 border-slate-200',
 };
 
 export const INDIAN_CITIES = [

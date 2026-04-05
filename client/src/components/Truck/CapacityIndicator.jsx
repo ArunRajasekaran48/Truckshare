@@ -5,19 +5,19 @@ export function CapacityIndicator({ used, total, unit, label }) {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-1">
-        <span className="text-xs text-gray-500">{label}</span>
-        <span className="text-xs font-medium text-gray-700">
+      <div className="flex justify-between items-center mb-2">
+        <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">{label}</span>
+        <span className="text-xs font-bold text-slate-900">
           {used?.toLocaleString()} / {total?.toLocaleString()} {unit}
         </span>
       </div>
-      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+      <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full transition-all duration-300 ${barColor}`}
           style={{ width: `${pct}%` }}
         />
       </div>
-      <p className="text-xs text-gray-400 mt-0.5 text-right">{pct}% used</p>
+      <p className="text-xs text-slate-500 mt-1 text-right font-medium">{pct}% used</p>
     </div>
   );
 }
