@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Common/Layout';
 import { BookingCard } from '@/components/Booking/BookingCard';
 import { PaymentModal } from '@/components/Booking/PaymentModal';
+import { ConfirmModal } from '@/components/Common/ConfirmModal';
 import { LoadingSpinner } from '@/components/Common/LoadingSpinner';
 import { EmptyState } from '@/components/Common/EmptyState';
 import { useBookings, useAcknowledgePayment, useCancelBooking } from '@/hooks/useBooking';
@@ -21,6 +22,7 @@ export function BookingListPage() {
 
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [filter, setFilter] = useState('ALL');
+  const [cancelConfirm, setCancelConfirm] = useState({ isOpen: false, bookingId: null });
 
   const isPendingBooking = (b) => b?.status === 'PROPOSED' || !b?.paymentConfirmed;
   const isConfirmedBooking = (b) => !isPendingBooking(b);
@@ -42,11 +44,15 @@ export function BookingListPage() {
   };
 
   const handleCancel = (id) => {
-    if (!confirm('Cancel this booking?')) return;
-    cancelBooking(id, {
+    setCancelConfirm({ isOpen: true, bookingId: id });
+  };
+
+  const confirmCancel = () => {
+    cancelBooking(cancelConfirm.bookingId, {
       onSuccess: () => toast.success('Booking cancelled'),
       onError: (e) => toast.error(e.message),
     });
+    setCancelConfirm({ isOpen: false, bookingId: null });
   };
 
   return (
@@ -124,6 +130,18 @@ export function BookingListPage() {
         onClose={() => setSelectedBooking(null)}
         onConfirm={handleAckPayment}
         isLoading={ackPending}
+      />
+
+      {/* Cancel booking confirmation */}
+      <ConfirmModal
+        isOpen={cancelConfirm.isOpen}
+        onClose={() => setCancelConfirm({ isOpen: false, bookingId: null })}
+        onConfirm={confirmCancel}
+        title="Cancel Booking"
+        message="Are you sure you want to cancel this booking? This action cannot be undone."
+        confirmText="Cancel Booking"
+        cancelText="Keep It"
+        isDanger
       />
     </Layout>
   );

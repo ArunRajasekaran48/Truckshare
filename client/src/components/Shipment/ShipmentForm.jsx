@@ -39,11 +39,11 @@ export function ShipmentForm({ onSubmit, onCancel, isLoading }) {
           const active = step === n;
           return (
             <div key={n} className="flex items-center gap-2 flex-1">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${done ? 'bg-teal-600 text-white' : active ? 'bg-teal-100 text-teal-700 border-2 border-teal-600' : 'bg-gray-100 text-gray-400'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 transition-colors ${done ? 'bg-teal-600 text-white' : active ? 'bg-teal-50 text-teal-700 border-2 border-teal-600' : 'bg-slate-100 text-slate-400'}`}>
                 {done ? '✓' : n}
               </div>
-              <span className={`text-sm hidden sm:block ${active ? 'text-teal-700 font-medium' : 'text-gray-400'}`}>{label}</span>
-              {i < steps.length - 1 && <div className={`flex-1 h-0.5 ${done ? 'bg-teal-600' : 'bg-gray-200'}`} />}
+              <span className={`text-sm hidden sm:block font-medium transition-colors ${active ? 'text-teal-700' : 'text-slate-500'}`}>{label}</span>
+              {i < steps.length - 1 && <div className={`flex-1 h-1 rounded-full transition-colors ${done ? 'bg-teal-600' : 'bg-slate-200'}`} />}
             </div>
           );
         })}

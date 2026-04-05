@@ -34,7 +34,7 @@ export function ShipmentList({ shipments = [], onSelect, filterStatus, sortBy = 
   const tabs = ['ALL', ...Object.values(SHIPMENT_STATUS)];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Search */}
       <input
         type="text"
@@ -50,15 +50,15 @@ export function ShipmentList({ shipments = [], onSelect, filterStatus, sortBy = 
           <button
             key={tab}
             onClick={() => setActiveFilter(tab)}
-            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+            className={`shrink-0 px-3.5 py-2 rounded-full text-xs font-semibold border transition-colors ${
               activeFilter === tab
-                ? 'bg-teal-600 text-white border-teal-600'
-                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                ? 'bg-teal-600 text-white border-teal-600 shadow-md'
+                : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
             }`}
           >
             {tab === 'ALL' ? 'All' : tab.replace(/_/g, ' ')}
             {tab !== 'ALL' && (
-              <span className="ml-1 opacity-60">
+              <span className="ml-1 opacity-70 font-normal">
                 ({shipments.filter((s) => s.status === tab).length})
               </span>
             )}

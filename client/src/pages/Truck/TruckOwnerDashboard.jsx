@@ -6,6 +6,7 @@ import { TruckCard } from '@/components/Truck/TruckCard';
 import { BookingCard } from '@/components/Booking/BookingCard';
 import { PaymentModal } from '@/components/Booking/PaymentModal';
 import { DriverAssignmentModal } from '@/components/Truck/DriverAssignmentModal';
+import { ConfirmModal } from '@/components/Common/ConfirmModal';
 import { LoadingSpinner } from '@/components/Common/LoadingSpinner';
 import { EmptyState } from '@/components/Common/EmptyState';
 import { useTrucksByOwner, useDeleteTruck, useAssignDriver, useUnassignDriver } from '@/hooks/useTruck';
@@ -17,6 +18,8 @@ export function TruckOwnerDashboard() {
   const { toast } = useContext(UIContext);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [assigningTruckId, setAssigningTruckId] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, truckId: null });
+  const [unassignConfirm, setUnassignConfirm] = useState({ isOpen: false, truckId: null });
 
   const { data: trucks = [], isLoading: trucksLoading } = useTrucksByOwner();
   const { data: bookings = [], isLoading: bookingsLoading } = useBookings();
@@ -29,11 +32,15 @@ export function TruckOwnerDashboard() {
   const confirmedBookings = bookings.filter((b) => b.paymentConfirmed);
 
   const handleDeleteTruck = (id) => {
-    if (!confirm('Delete this truck?')) return;
-    deleteTruck(id, {
+    setDeleteConfirm({ isOpen: true, truckId: id });
+  };
+
+  const confirmDeleteTruck = () => {
+    deleteTruck(deleteConfirm.truckId, {
       onSuccess: () => toast.success('Truck deleted'),
       onError: (e) => toast.error(e.message),
     });
+    setDeleteConfirm({ isOpen: false, truckId: null });
   };
 
   const handleAckPayment = (bookingId, paymentReference) => {
@@ -60,21 +67,25 @@ export function TruckOwnerDashboard() {
   };
 
   const handleUnassignDriver = (truckId) => {
-    if (!confirm('Unassign driver from this truck?')) return;
-    unassignDriver(truckId, {
+    setUnassignConfirm({ isOpen: true, truckId });
+  };
+
+  const confirmUnassignDriver = () => {
+    unassignDriver(unassignConfirm.truckId, {
       onSuccess: () => toast.success('Driver unassigned'),
       onError: (e) => toast.error(e.message),
     });
+    setUnassignConfirm({ isOpen: false, truckId: null });
   };
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Page header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Truck Owner Dashboard</h1>
-            <p className="text-sm text-gray-500 mt-0.5">Manage your fleet and bookings</p>
+            <h1 className="text-3xl font-bold text-slate-900">Truck Owner Dashboard</h1>
+            <p className="text-sm text-slate-600 mt-2">Manage your fleet and bookings</p>
           </div>
           <button onClick={() => navigate('/trucks/add')} className="btn-primary">
             + Add Truck
@@ -91,8 +102,8 @@ export function TruckOwnerDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Trucks */}
-          <div className="lg:col-span-2 space-y-4">
-            <h2 className="font-semibold text-gray-900">My Trucks</h2>
+          <div className="lg:col-span-2 space-y-5">
+            <h2 className="text-xl font-bold text-slate-900">My Trucks</h2>
             {trucksLoading ? (
               <LoadingSpinner text="Loading trucks…" />
             ) : trucks.length === 0 ? (
@@ -124,11 +135,11 @@ export function TruckOwnerDashboard() {
           </div>
 
           {/* Bookings */}
-          <div className="space-y-4">
-            <h2 className="font-semibold text-gray-900">
+          <div className="space-y-5">
+            <h2 className="text-xl font-bold text-slate-900">
               Bookings
               {pendingBookings.length > 0 && (
-                <span className="ml-2 inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-500 text-white text-xs font-bold">
+                <span className="ml-3 inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-500 text-white text-xs font-bold">
                   {pendingBookings.length}
                 </span>
               )}
@@ -169,6 +180,29 @@ export function TruckOwnerDashboard() {
         onAssign={handleAssignDriver}
         isLoading={assignLoading}
         currentDriverId={trucks.find(t => t.id === assigningTruckId)?.driverId}
+      />
+
+      {/* Delete truck confirmation */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        onClose={() => setDeleteConfirm({ isOpen: false, truckId: null })}
+        onConfirm={confirmDeleteTruck}
+        title="Delete Truck"
+        message="Are you sure you want to permanently delete this truck? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDanger
+      />
+
+      {/* Unassign driver confirmation */}
+      <ConfirmModal
+        isOpen={unassignConfirm.isOpen}
+        onClose={() => setUnassignConfirm({ isOpen: false, truckId: null })}
+        onConfirm={confirmUnassignDriver}
+        title="Unassign Driver"
+        message="Are you sure you want to unassign this driver from the truck?"
+        confirmText="Unassign"
+        cancelText="Cancel"
       />
     </Layout>
   );

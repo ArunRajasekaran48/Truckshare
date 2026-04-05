@@ -4,8 +4,7 @@ import { AuthContext } from './context/AuthContext';
 import { UIContext } from './context/UIContext';
 
 // Auth Pages
-import { LoginPage } from './pages/Auth/LoginPage';
-import { RegisterPage } from './pages/Auth/RegisterPage';
+import { LandingAuthPage } from './pages/Auth/LandingAuthPage';
 
 // Truck Owner Pages
 import { TruckOwnerDashboard } from './pages/Truck/TruckOwnerDashboard';
@@ -70,8 +69,8 @@ export default function App() {
     <ErrorBoundary>
       <Routes>
         {/* Public */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LandingAuthPage initialMode="login" />} />
+        <Route path="/register" element={<LandingAuthPage initialMode="register" />} />
         <Route path="/" element={<RootRedirect />} />
 
         {/* Truck Owner */}
@@ -216,10 +215,10 @@ export default function App() {
         <Route
           path="*"
           element={
-            <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-              <span className="text-6xl">🛣️</span>
-              <h1 className="text-4xl font-bold text-gray-900">404</h1>
-              <p className="text-gray-500">This road doesn't lead anywhere.</p>
+            <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-slate-50 px-4">
+              <span className="text-7xl">🛣️</span>
+              <h1 className="text-5xl font-bold text-slate-900">404</h1>
+              <p className="text-slate-600 text-lg">This road doesn't lead anywhere.</p>
               <a href="/" className="btn-primary">Go Home</a>
             </div>
           }

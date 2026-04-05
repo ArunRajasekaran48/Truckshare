@@ -1,29 +1,32 @@
-export function StatCard({ label, value, unit, trend, icon, color = 'teal' }) {
+export function StatCard({ label, value, unit, trend, icon, color = 'blue' }) {
   const colors = {
-    teal: 'bg-teal-50 text-teal-600',
-    amber: 'bg-amber-50 text-amber-600',
-    blue: 'bg-blue-50 text-blue-600',
-    green: 'bg-emerald-50 text-emerald-600',
-    red: 'bg-red-50 text-red-600',
+    blue: 'bg-gradient-to-br from-blue-100 to-cyan-100 text-blue-700 border-2 border-blue-300 shadow-lg',
+    teal: 'bg-gradient-to-br from-teal-100 to-cyan-100 text-teal-700 border-2 border-teal-300 shadow-lg',
+    amber: 'bg-gradient-to-br from-amber-100 to-orange-100 text-amber-700 border-2 border-amber-300 shadow-lg',
+    purple: 'bg-gradient-to-br from-purple-100 to-pink-100 text-purple-700 border-2 border-purple-300 shadow-lg',
+    green: 'bg-gradient-to-br from-green-100 to-emerald-100 text-green-700 border-2 border-green-300 shadow-lg',
+    red: 'bg-gradient-to-br from-red-100 to-pink-100 text-red-700 border-2 border-red-300 shadow-lg',
   };
 
   return (
-    <div className="card p-5 flex items-start justify-between">
-      <div>
-        <p className="text-sm text-gray-500 mb-1">{label}</p>
-        <p className="text-2xl font-bold text-gray-900">
-          {value}
-          {unit && <span className="text-sm font-normal text-gray-500 ml-1">{unit}</span>}
-        </p>
-        {trend && (
-          <p className={`text-xs mt-1 font-medium ${trend.startsWith('+') ? 'text-emerald-600' : 'text-red-500'}`}>
-            {trend} this week
+    <div className="card overflow-hidden p-4 sm:p-6 flex flex-col justify-between gap-4 bg-gradient-to-br from-white via-blue-50 to-purple-50 border-2 border-blue-200 hover:shadow-2xl">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <p className="text-[11px] sm:text-xs font-black text-blue-600 uppercase tracking-[0.18em] mb-2 sm:mb-3 break-words">{label}</p>
+          <p className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent leading-none">
+            {value}
+            {unit && <span className="text-sm font-bold text-slate-500 ml-2">{unit}</span>}
           </p>
+          {trend && (
+            <p className={`text-xs mt-3 font-bold flex items-center gap-1 ${trend.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+              {trend.startsWith('+') ? '📈' : '📉'} {trend} this week
+            </p>
+          )}
+        </div>
+        {icon && (
+          <div className={`shrink-0 p-3 sm:p-4 rounded-2xl text-xl sm:text-2xl ${colors[color]} transform hover:scale-110 transition-transform`}>{icon}</div>
         )}
       </div>
-      {icon && (
-        <div className={`p-2.5 rounded-xl text-xl ${colors[color]}`}>{icon}</div>
-      )}
     </div>
   );
 }

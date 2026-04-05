@@ -32,51 +32,71 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-gray-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-500 to-indigo-700 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute top-20 right-10 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+      <div className="absolute -bottom-8 left-20 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+
+      <div className="w-full max-w-md relative z-10">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <span className="text-5xl">🚛</span>
-          <h1 className="text-2xl font-bold text-gray-900 mt-3">TruckShare</h1>
-          <p className="text-gray-500 text-sm mt-1">Sign in to your account</p>
+        <div className="text-center mb-10">
+          {/* <div className="inline-block bg-white rounded-2xl p-4 shadow-xl mb-4">
+            <span className="text-5xl block">🚛</span>
+          </div> */}
+          <h1 className="text-4xl font-bold text-white mt-4">TruckShare</h1>
+          <p className="text-blue-100 text-base mt-2 font-medium">Logistics Simplified</p>
         </div>
 
-        <div className="card p-8">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <div className="card-elevated p-8 border-2 border-white/20 backdrop-blur-xl">
+          <h2 className="text-2xl font-bold text-slate-900 mb-6 text-center">Welcome Back</h2>
+          
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
-              <label className="label">User ID</label>
-              <input
-                {...register('userId')}
-                className="input-field"
-                placeholder="your_user_id"
-                autoComplete="username"
-              />
+              <label className="label text-slate-700">User ID</label>
+              <div className="relative">
+                <div className="absolute left-0 top-0 bottom-0 flex items-center pl-4">
+                  <span className="text-blue-600">👤</span>
+                </div>
+                <input
+                  {...register('userId')}
+                  className="input-field pl-12 border-blue-300 focus:border-blue-500"
+                  placeholder="your_user_id"
+                  autoComplete="username"
+                />
+              </div>
               {errors.userId && <p className="error-text">{errors.userId.message}</p>}
             </div>
 
             <div>
-              <label className="label">Password</label>
-              <input
-                {...register('password')}
-                type="password"
-                className="input-field"
-                placeholder="••••••••"
-                autoComplete="current-password"
-              />
+              <label className="label text-slate-700">Password</label>
+              <div className="relative">
+                <div className="absolute left-0 top-0 bottom-0 flex items-center pl-4">
+                  <span className="text-blue-600">🔐</span>
+                </div>
+                <input
+                  {...register('password')}
+                  type="password"
+                  className="input-field pl-12 border-blue-300 focus:border-blue-500"
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                />
+              </div>
               {errors.password && <p className="error-text">{errors.password.message}</p>}
             </div>
 
-            <button type="submit" disabled={isLoading} className="btn-primary w-full py-2.5">
-              {isLoading ? 'Signing in…' : 'Sign In'}
+            <button type="submit" disabled={isLoading} className="btn-primary w-full py-3 text-base">
+              {isLoading ? '⏳ Signing in…' : 'Sign In'}
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-500 mt-6">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-teal-600 hover:underline font-medium">
-              Register
-            </Link>
-          </p>
+          <div className="mt-8 pt-6 border-t-2 border-blue-100">
+            <p className="text-center text-sm text-slate-600">
+              New to TruckShare?{' '}
+              <Link to="/register" className="font-bold text-blue-600 hover:text-blue-700 transition-colors">
+                Create Account
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

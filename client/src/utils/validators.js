@@ -1,5 +1,16 @@
 import * as yup from 'yup';
 
+const requiredPositiveNumber = (label) =>
+  yup
+    .number()
+    .transform((value, originalValue) => {
+      // Prevent Yup from showing raw NaN cast errors for empty numeric inputs.
+      return originalValue === '' || originalValue == null ? undefined : value;
+    })
+    .typeError(`${label} must be a valid number`)
+    .required(`${label} is required`)
+    .positive('Must be positive');
+
 export const loginSchema = yup.object({
   userId: yup.string().required('User ID is required'),
   password: yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
@@ -71,7 +82,7 @@ export const shipmentRouteSchema = yup.object({
     .test('not-same', 'Origin and destination must differ', function (value) {
       return value !== this.parent.fromLocation;
     }),
-  requiredWeight: yup.number().positive('Must be positive').required('Weight is required'),
-  requiredVolume: yup.number().positive('Must be positive').required('Volume is required'),
-  requiredLength: yup.number().positive('Must be positive').required('Length is required'),
+  requiredWeight: requiredPositiveNumber('Weight'),
+  requiredVolume: requiredPositiveNumber('Volume'),
+  requiredLength: requiredPositiveNumber('Length'),
 });

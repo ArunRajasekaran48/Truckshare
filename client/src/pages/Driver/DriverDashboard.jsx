@@ -53,52 +53,73 @@ export function DriverDashboard() {
 
   return (
     <Layout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">Driver Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            View your assigned truck and active trips
-          </p>
-        </div>
+      <div className="space-y-8">
+        <div className="relative overflow-hidden rounded-3xl border border-emerald-300/50 bg-gradient-to-br from-emerald-700 via-teal-700 to-cyan-700 p-6 sm:p-8 text-white shadow-[0_18px_45px_-20px_rgba(5,150,105,0.75)]">
+          <div className="absolute -right-12 -top-12 h-44 w-44 rounded-full bg-white/10 blur-2xl" aria-hidden />
+          <div className="absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-cyan-300/20 blur-2xl" aria-hidden />
 
-        <div className="card p-4 border-teal-100 bg-gradient-to-r from-teal-50/90 to-white">
-          <h2 className="font-semibold text-gray-900 text-sm flex items-center gap-2">
-            <span aria-hidden>📡</span>
-            Route (quick view)
-          </h2>
-          <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">
-            This is a quick route summary. For the live moving truck map and GPS sharing, open <strong>Tracking</strong> on a booking.
-          </p>
-        </div>
-
-        <div className="card p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-sm font-semibold text-gray-900">Driver Availability</p>
-              <p className="text-xs text-gray-500 mt-1">Set your current assignment status so owners cannot assign you while you are on a trip.</p>
+              <p className="text-[11px] sm:text-xs uppercase tracking-[0.24em] text-emerald-100/90 font-bold">
+                Driver Console
+              </p>
+              <h1 className="mt-2 text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)]">
+                Stay ready for every trip
+              </h1>
+              <p className="mt-3 max-w-2xl text-sm sm:text-base text-emerald-100/95 font-medium">
+                Track active loads, update availability, and jump into live route tracking in one place.
+              </p>
+            </div>
+
+            <div className="self-start md:self-auto rounded-2xl border border-white/30 bg-white/10 backdrop-blur-sm px-4 py-3">
+              <div className="flex items-center gap-3">
+                <span className="grid h-12 w-12 place-items-center rounded-xl bg-white/20 text-2xl" aria-hidden>
+                  🚛
+                </span>
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-emerald-100/80 font-bold">Workspace</p>
+                  <p className="text-base font-bold">Driver Hub</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="card p-6 bg-gradient-to-br from-white via-green-50 to-emerald-50 border-2 border-green-200">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-lg font-black text-green-700">Driver Availability</p>
+              <p className="text-sm text-green-600 mt-2 font-semibold">Set your status so owners know your availability.</p>
             </div>
             <StatusBadge status={profile?.driverAvailability || 'AVAILABLE'} />
           </div>
-          <div className="flex flex-wrap gap-2 mt-3">
-            {['AVAILABLE', 'ON_TRIP', 'UNAVAILABLE'].map((status) => (
-              <button
-                key={status}
-                type="button"
-                disabled={availabilityMutation.isPending || (profile?.driverAvailability || 'AVAILABLE') === status}
-                onClick={() => availabilityMutation.mutate(status)}
-                className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
-                  (profile?.driverAvailability || 'AVAILABLE') === status
-                    ? 'bg-teal-600 text-white border-teal-600'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                {status.replace('_', ' ')}
-              </button>
-            ))}
+          <div className="flex flex-wrap gap-3 mt-5">
+            {['AVAILABLE', 'ON_TRIP', 'UNAVAILABLE'].map((status) => {
+              const colors = {
+                'AVAILABLE': 'from-green-500 to-emerald-500 text-white border-green-600',
+                'ON_TRIP': 'from-yellow-500 to-orange-500 text-white border-yellow-600',
+                'UNAVAILABLE': 'from-red-500 to-pink-500 text-white border-red-600',
+              };
+              return (
+                <button
+                  key={status}
+                  type="button"
+                  disabled={availabilityMutation.isPending || (profile?.driverAvailability || 'AVAILABLE') === status}
+                  onClick={() => availabilityMutation.mutate(status)}
+                  className={`px-4 py-2.5 text-xs font-bold rounded-full border-2 transition-all transform hover:scale-105 ${
+                    (profile?.driverAvailability || 'AVAILABLE') === status
+                      ? `bg-gradient-to-r ${colors[status]} shadow-lg`
+                      : 'bg-white text-slate-700 border-slate-300 hover:border-slate-400'
+                  }`}
+                >
+                  {status.replace('_', ' ')}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard label="Assigned truck" value={truck ? 1 : 0} icon="🚛" color="teal" />
           <StatCard label="Total bookings" value={bookings.length} icon="📋" color="amber" />
           <StatCard label="Pending" value={pending.length} icon="⏳" color="amber" />
@@ -106,12 +127,12 @@ export function DriverDashboard() {
         </div>
 
         {bookings.length > 0 && mapShipment?.fromLocation && mapShipment?.toLocation && (
-          <div className="card p-4">
-            <h2 className="font-semibold text-gray-900">Current trip route</h2>
-            <p className="text-xs text-gray-500 mt-0.5 mb-3">
-              From <span className="font-medium text-gray-700">{mapShipment.fromLocation}</span> to{' '}
-              <span className="font-medium text-gray-700">{mapShipment.toLocation}</span>
-              <span className="text-gray-400"> · from your current / latest booking</span>
+          <div className="card p-5">
+            <h2 className="font-bold text-slate-900">Current trip route</h2>
+            <p className="text-xs text-slate-600 mt-1.5 mb-4">
+              From <span className="font-semibold text-slate-900">{mapShipment.fromLocation}</span> to{' '}
+              <span className="font-semibold text-slate-900">{mapShipment.toLocation}</span>
+              <span className="text-slate-500"> · from your current / latest booking</span>
             </p>
 
             <div className="rounded-xl border border-slate-200 bg-white px-3 py-3">
@@ -163,8 +184,8 @@ export function DriverDashboard() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-4">
-            <h2 className="font-semibold text-gray-900">Your truck</h2>
+          <div className="lg:col-span-2 space-y-5">
+            <h2 className="text-xl font-bold text-slate-900">Your truck</h2>
             {truckLoading ? (
               <LoadingSpinner text="Loading assignment…" />
             ) : !truck ? (
@@ -178,15 +199,15 @@ export function DriverDashboard() {
             )}
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-gray-900">Recent trips</h2>
+              <h2 className="text-xl font-bold text-slate-900">Recent trips</h2>
               <button
                 type="button"
                 onClick={() => navigate('/bookings')}
-                className="text-sm text-teal-600 hover:underline"
+                className="text-sm font-semibold text-teal-600 hover:text-teal-700"
               >
-                View all
+                View all →
               </button>
             </div>
             {bookingsLoading ? (

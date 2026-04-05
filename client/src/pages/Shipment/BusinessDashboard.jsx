@@ -1,9 +1,10 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Common/Layout';
 import { StatCard } from '@/components/Dashboard/StatCard';
 import { ShipmentCard } from '@/components/Shipment/ShipmentCard';
 import { BookingCard } from '@/components/Booking/BookingCard';
+import { ConfirmModal } from '@/components/Common/ConfirmModal';
 import { LoadingSpinner } from '@/components/Common/LoadingSpinner';
 import { EmptyState } from '@/components/Common/EmptyState';
 import { useShipments } from '@/hooks/useShipment';
@@ -13,6 +14,7 @@ import { UIContext } from '@/context/UIContext';
 export function BusinessDashboard() {
   const navigate = useNavigate();
   const { toast } = useContext(UIContext);
+  const [cancelConfirm, setCancelConfirm] = useState({ isOpen: false, bookingId: null });
 
   const { data: shipments = [], isLoading: shipmentsLoading } = useShipments();
   const { data: bookings = [], isLoading: bookingsLoading } = useBookings();
@@ -24,21 +26,25 @@ export function BusinessDashboard() {
   const confirmedBookings = bookings.filter((b) => b.paymentConfirmed);
 
   const handleCancel = (id) => {
-    if (!confirm('Cancel this booking?')) return;
-    cancelBooking(id, {
+    setCancelConfirm({ isOpen: true, bookingId: id });
+  };
+
+  const confirmCancel = () => {
+    cancelBooking(cancelConfirm.bookingId, {
       onSuccess: () => toast.success('Booking cancelled'),
       onError: (e) => toast.error(e.message),
     });
+    setCancelConfirm({ isOpen: false, bookingId: null });
   };
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Business Dashboard</h1>
-            <p className="text-sm text-gray-500 mt-0.5">Track your shipments and bookings</p>
+            <h1 className="text-3xl font-bold text-slate-900">Business Dashboard</h1>
+            <p className="text-sm text-slate-600 mt-2">Track your shipments and bookings</p>
           </div>
           <button onClick={() => navigate('/shipments/create')} className="btn-primary">
             + New Shipment
@@ -120,6 +126,18 @@ export function BusinessDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Cancel booking confirmation */}
+      <ConfirmModal
+        isOpen={cancelConfirm.isOpen}
+        onClose={() => setCancelConfirm({ isOpen: false, bookingId: null })}
+        onConfirm={confirmCancel}
+        title="Cancel Booking"
+        message="Are you sure you want to cancel this booking? This action cannot be undone."
+        confirmText="Cancel Booking"
+        cancelText="Keep It"
+        isDanger
+      />
     </Layout>
   );
 }
