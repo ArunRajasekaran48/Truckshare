@@ -35,30 +35,30 @@ export function BusinessDashboard() {
     <Layout>
       <div className="space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 rounded-2xl shadow-xl border-2 border-blue-400">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Business Dashboard</h1>
-            <p className="text-sm text-slate-600 mt-2">Track your shipments and bookings</p>
+            <h1 className="text-5xl font-black">📦 Business Hub</h1>
+            <p className="text-blue-100 text-lg mt-2 font-semibold">Manage shipments & bookings</p>
           </div>
-          <button onClick={() => navigate('/shipments/create')} className="btn-primary">
-            + New Shipment
+          <button onClick={() => navigate('/shipments/create')} className="btn-primary whitespace-nowrap">
+            ➕ New Shipment
           </button>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
           <StatCard label="Total Shipments" value={shipments.length} icon="📦" color="blue" />
-          <StatCard label="Active Shipments" value={activeShipments.length} icon="🚛" color="teal" />
+          <StatCard label="Active Shipments" value={activeShipments.length} icon="🚛" color="purple" />
           <StatCard label="Total Bookings" value={bookings.length} icon="📋" color="amber" />
           <StatCard label="Confirmed" value={confirmedBookings.length} icon="✅" color="green" />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Shipments */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-5">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-gray-900">My Shipments</h2>
-              <button onClick={() => navigate('/shipments')} className="text-sm text-teal-600 hover:underline">
+              <h2 className="text-2xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">My Shipments</h2>
+              <button onClick={() => navigate('/shipments')} className="text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors">
                 View all →
               </button>
             </div>

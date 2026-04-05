@@ -9,17 +9,17 @@ export function TruckCard({ truck, actions = [], onClick, compact = false }) {
 
   return (
     <div
-      className={`card p-5 flex flex-col gap-4 transition-all duration-200 hover:shadow-lg ${onClick ? 'cursor-pointer' : ''}`}
+      className={`card p-6 flex flex-col gap-4 transition-all duration-200 hover:shadow-2xl bg-gradient-to-br from-white via-blue-50 to-purple-50 border-2 border-blue-200 ${onClick ? 'cursor-pointer' : ''}`}
       onClick={onClick}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-slate-900 truncate text-lg">{truck.model}</p>
-          <div className="flex items-center gap-2 mt-1.5">
-            <p className="text-xs text-slate-500 font-mono uppercase tracking-wider">{truck.licensePlate}</p>
+          <p className="font-black text-lg bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent truncate">{truck.model}</p>
+          <div className="flex items-center gap-2 mt-2">
+            <p className="text-xs text-slate-600 font-mono uppercase tracking-wider font-bold">{truck.licensePlate}</p>
             {(truck.driverId || truck.driverName) && (
-              <div className="flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold border border-blue-200">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-green-100 to-cyan-100 text-green-700 rounded-full text-xs font-bold border-2 border-green-300">
                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                 </svg>
@@ -32,9 +32,9 @@ export function TruckCard({ truck, actions = [], onClick, compact = false }) {
       </div>
 
       {/* Route */}
-      <div className="flex items-center gap-2 text-sm text-slate-700 bg-slate-50 rounded-lg px-3.5 py-2.5 font-medium">
+      <div className="flex items-center gap-2 text-sm text-blue-700 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg px-4 py-3 font-bold border-2 border-blue-300">
         <span>{truck.fromLocation}</span>
-        <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-4 h-4 text-blue-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
         </svg>
         <span>{truck.toLocation}</span>
@@ -50,15 +50,15 @@ export function TruckCard({ truck, actions = [], onClick, compact = false }) {
       )}
 
       {/* Pricing */}
-      <div className="flex gap-4 text-xs text-slate-600 border-t border-slate-200 pt-4">
+      <div className="flex gap-4 text-xs text-slate-700 border-t-2 border-blue-200 pt-4">
         <span className="flex items-center gap-1.5">
-          <span className="font-bold text-slate-900">{formatCurrency(truck.pricePerKg)}</span><span className="text-slate-500">/kg</span>
+          <span className="font-black text-purple-600">{formatCurrency(truck.pricePerKg)}</span><span className="text-slate-600">/kg</span>
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="font-bold text-slate-900">{formatCurrency(truck.pricePerLength)}</span><span className="text-slate-500">/m</span>
+          <span className="font-black text-purple-600">{formatCurrency(truck.pricePerLength)}</span><span className="text-slate-600">/m</span>
         </span>
         {truck.score != null && (
-          <span className="ml-auto font-bold text-teal-600">Score: {truck.score}</span>
+          <span className="ml-auto font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">⭐ Score: {truck.score}</span>
         )}
       </div>
 

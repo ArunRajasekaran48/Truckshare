@@ -28,35 +28,36 @@ export function BookingCard({
     (!!onTrack && booking.paymentConfirmed);
 
   return (
-    <div className="card p-5 flex flex-col gap-4 transition-all duration-200 hover:shadow-lg">
+    <div className="card p-6 flex flex-col gap-4 transition-all duration-200 hover:shadow-2xl bg-gradient-to-br from-white via-orange-50 to-yellow-50 border-2 border-orange-200">
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs text-slate-500 font-mono uppercase tracking-wide">Booking #{truncateId(booking.id)}</p>
-          <p className="text-xs text-slate-500 mt-1.5">Shipment #{truncateId(booking.shipmentId)}</p>
+          <p className="text-xs text-orange-600 font-mono uppercase tracking-widest font-bold">🎫 Booking #{truncateId(booking.id)}</p>
+          <p className="text-xs text-orange-600 mt-2 font-semibold">📦 Shipment #{truncateId(booking.shipmentId)}</p>
         </div>
         <StatusBadge status={booking.status ?? (booking.paymentConfirmed ? 'BOOKED' : 'PENDING')} />
       </div>
 
       {/* Capacity */}
-      <div className="grid grid-cols-3 gap-2 text-center">
+      <div className="grid grid-cols-3 gap-3 text-center">
         {[
-          { label: 'Weight', val: booking.allocatedWeight, unit: 'kg' },
-          { label: 'Volume', val: booking.allocatedVolume, unit: 'm³' },
-          { label: 'Length', val: booking.allocatedLength, unit: 'm' },
-        ].map(({ label, val, unit }) => (
-          <div key={label} className="bg-slate-50 rounded-lg py-3 border border-slate-200">
-            <p className="text-xs text-slate-500 font-semibold">{label}</p>
-            <p className="text-sm font-bold text-slate-900 mt-1">
-              {val?.toLocaleString()} <span className="text-xs font-normal text-slate-500">{unit}</span>
+          { label: 'Weight', val: booking.allocatedWeight, unit: 'kg', icon: '⚖️' },
+          { label: 'Volume', val: booking.allocatedVolume, unit: 'm³', icon: '📦' },
+          { label: 'Length', val: booking.allocatedLength, unit: 'm', icon: '📏' },
+        ].map(({ label, val, unit, icon }) => (
+          <div key={label} className="bg-gradient-to-br from-orange-100 to-yellow-100 rounded-lg py-3 border-2 border-orange-300">
+            <p className="text-lg mb-1">{icon}</p>
+            <p className="text-xs text-orange-600 font-bold uppercase">{label}</p>
+            <p className="text-base font-black text-orange-900 mt-1">
+              {val?.toLocaleString()} <span className="text-xs font-bold text-orange-600">{unit}</span>
             </p>
           </div>
         ))}
       </div>
 
       {/* Payment status */}
-      <div className="flex items-center justify-between text-xs text-slate-600 border-t border-slate-200 pt-3">
-        <span>{formatDate(booking.createdAt)}</span>
+      <div className="flex items-center justify-between text-xs text-slate-700 border-t-2 border-orange-200 pt-3">
+        <span className="font-bold">📅 {formatDate(booking.createdAt)}</span>
         {booking.paymentConfirmed ? (
           <span className="text-emerald-600 font-bold">✓ Payment confirmed</span>
         ) : (

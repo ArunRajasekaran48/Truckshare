@@ -54,47 +54,54 @@ export function DriverDashboard() {
   return (
     <Layout>
       <div className="space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Driver Dashboard</h1>
-          <p className="text-sm text-slate-600 mt-2">
-            View your assigned truck and active trips
+        <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-8 rounded-2xl shadow-xl border-2 border-green-400">
+          <h1 className="text-5xl font-black">👨‍💼 Driver Hub</h1>
+          <p className="text-green-100 text-lg mt-2 font-semibold">
+            Monitor trips and manage your availability
           </p>
         </div>
 
-        <div className="card p-5 border border-teal-200 bg-gradient-to-r from-teal-50/60 to-white">
-          <h2 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+        <div className="card p-6 border-2 border-green-300 bg-gradient-to-r from-green-50/80 to-emerald-50/80">
+          <h2 className="font-black text-green-700 text-lg flex items-center gap-2">
             <span aria-hidden>📡</span>
-            Route (quick view)
+            Route Preview
           </h2>
-          <p className="text-xs text-slate-600 mt-2 leading-relaxed">
+          <p className="text-sm text-green-600 mt-3 leading-relaxed font-semibold">
             This is a quick route summary. For the live moving truck map and GPS sharing, open <strong>Tracking</strong> on a booking.
           </p>
         </div>
 
-        <div className="card p-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="card p-6 bg-gradient-to-br from-white via-green-50 to-emerald-50 border-2 border-green-200">
+          <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-bold text-slate-900">Driver Availability</p>
-              <p className="text-xs text-slate-600 mt-1.5">Set your current assignment status so owners cannot assign you while you are on a trip.</p>
+              <p className="text-lg font-black text-green-700">Driver Availability</p>
+              <p className="text-sm text-green-600 mt-2 font-semibold">Set your status so owners know your availability.</p>
             </div>
             <StatusBadge status={profile?.driverAvailability || 'AVAILABLE'} />
           </div>
-          <div className="flex flex-wrap gap-2 mt-4">
-            {['AVAILABLE', 'ON_TRIP', 'UNAVAILABLE'].map((status) => (
-              <button
-                key={status}
-                type="button"
-                disabled={availabilityMutation.isPending || (profile?.driverAvailability || 'AVAILABLE') === status}
-                onClick={() => availabilityMutation.mutate(status)}
-                className={`px-3.5 py-2 text-xs font-semibold rounded-full border transition-colors ${
-                  (profile?.driverAvailability || 'AVAILABLE') === status
-                    ? 'bg-teal-600 text-white border-teal-600 shadow-md'
-                    : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
-                }`}
-              >
-                {status.replace('_', ' ')}
-              </button>
-            ))}
+          <div className="flex flex-wrap gap-3 mt-5">
+            {['AVAILABLE', 'ON_TRIP', 'UNAVAILABLE'].map((status) => {
+              const colors = {
+                'AVAILABLE': 'from-green-500 to-emerald-500 text-white border-green-600',
+                'ON_TRIP': 'from-yellow-500 to-orange-500 text-white border-yellow-600',
+                'UNAVAILABLE': 'from-red-500 to-pink-500 text-white border-red-600',
+              };
+              return (
+                <button
+                  key={status}
+                  type="button"
+                  disabled={availabilityMutation.isPending || (profile?.driverAvailability || 'AVAILABLE') === status}
+                  onClick={() => availabilityMutation.mutate(status)}
+                  className={`px-4 py-2.5 text-xs font-bold rounded-full border-2 transition-all transform hover:scale-105 ${
+                    (profile?.driverAvailability || 'AVAILABLE') === status
+                      ? `bg-gradient-to-r ${colors[status]} shadow-lg`
+                      : 'bg-white text-slate-700 border-slate-300 hover:border-slate-400'
+                  }`}
+                >
+                  {status.replace('_', ' ')}
+                </button>
+              );
+            })}
           </div>
         </div>
 

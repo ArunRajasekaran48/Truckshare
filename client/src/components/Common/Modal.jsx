@@ -35,15 +35,15 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', hideClose
       />
       {/* Panel */}
       <div
-        className={`relative w-full ${sizes[size]} bg-white rounded-xl shadow-xl flex flex-col max-h-[90vh]`}
+        className={`relative w-full ${sizes[size]} bg-gradient-to-br from-white via-blue-50 to-purple-50 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] border-2 border-blue-200`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200">
-          <h2 className="text-lg font-bold text-slate-900">{title}</h2>
+        <div className="flex items-center justify-between px-6 py-6 border-b-2 border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50">
+          <h2 className="text-2xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{title}</h2>
           {!hideClose && (
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+              className="p-2 rounded-lg text-slate-500 hover:text-white hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-500 transition-all"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -52,7 +52,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', hideClose
           )}
         </div>
         {/* Body */}
-        <div className="overflow-y-auto flex-1 px-6 py-5">{children}</div>
+        <div className="overflow-y-auto flex-1 px-6 py-6">{children}</div>
       </div>
     </div>
   );

@@ -71,28 +71,28 @@ export function TruckOwnerDashboard() {
     <Layout>
       <div className="space-y-8">
         {/* Page header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-6 bg-gradient-to-r from-cyan-600 to-blue-600 text-white p-8 rounded-2xl shadow-xl border-2 border-cyan-400">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Truck Owner Dashboard</h1>
-            <p className="text-sm text-slate-600 mt-2">Manage your fleet and bookings</p>
+            <h1 className="text-5xl font-black">🚚 Fleet Manager</h1>
+            <p className="text-cyan-100 text-lg mt-2 font-semibold">Control your entire fleet</p>
           </div>
-          <button onClick={() => navigate('/trucks/add')} className="btn-primary">
-            + Add Truck
+          <button onClick={() => navigate('/trucks/add')} className="btn-primary whitespace-nowrap">
+            ➕ Add Truck
           </button>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard label="Total Trucks" value={trucks.length} icon="🚛" color="teal" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+          <StatCard label="Total Trucks" value={trucks.length} icon="🚛" color="blue" />
           <StatCard label="Active Trucks" value={trucks.filter((t) => t.status === 'AVAILABLE').length} icon="✅" color="green" />
           <StatCard label="Pending Bookings" value={pendingBookings.length} icon="📋" color="amber" />
-          <StatCard label="Confirmed Bookings" value={confirmedBookings.length} icon="💰" color="blue" />
+          <StatCard label="Confirmed Bookings" value={confirmedBookings.length} icon="💰" color="purple" />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Trucks */}
           <div className="lg:col-span-2 space-y-5">
-            <h2 className="text-xl font-bold text-slate-900">My Trucks</h2>
+            <h2 className="text-2xl font-black bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">My Trucks</h2>
             {trucksLoading ? (
               <LoadingSpinner text="Loading trucks…" />
             ) : trucks.length === 0 ? (
